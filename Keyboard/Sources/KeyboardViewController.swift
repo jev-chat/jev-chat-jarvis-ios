@@ -116,7 +116,7 @@ final class KeyboardViewController: UIInputViewController {
             dot.heightAnchor.constraint(equalToConstant: 8),
         ])
 
-        statusLabel = KB.label(hasFullAccess ? "Jev · 已连接" : "Jev · 需要完全访问",
+        statusLabel = KB.label(hasFullAccess ? "秒回 · 已连接" : "秒回 · 需要完全访问",
                                font: .systemFont(ofSize: 12, weight: .medium), color: KB.secondaryText)
 
         let title = UIStackView(arrangedSubviews: [dot, statusLabel])
@@ -320,10 +320,10 @@ final class KeyboardViewController: UIInputViewController {
         let title = KB.label("需要「允许完全访问」", font: .systemFont(ofSize: 16, weight: .bold),
                              color: .systemRed)
         let steps = KB.label(
-            "Jev 键盘要联网调用模型、读取剪贴板，这两项都要求完全访问：\n\n"
+            "秒回键盘要联网调用模型、读取剪贴板，这两项都要求完全访问：\n\n"
             + "① 打开系统「设置」→「通用」→「键盘」→「键盘」\n"
-            + "② 点「添加新键盘」→ 选「Jev 键盘」\n"
-            + "③ 点「Jev 键盘」→ 打开「允许完全访问」\n\n"
+            + "② 点「添加新键盘」→ 选「秒回键盘」\n"
+            + "③ 点「秒回键盘」→ 打开「允许完全访问」\n\n"
             + "完全访问意味着键盘能传输按键与剪贴板内容——本项目开源、只用你自己填的 API Key，"
             + "不用时可以在同页一键移除。",
             font: .systemFont(ofSize: 13), color: KB.primaryText, lines: 0)
@@ -386,7 +386,7 @@ final class KeyboardViewController: UIInputViewController {
         if !cfg.generation.key.isEmpty {
             // 配置正常（含内置中转兜底）时不占行
         } else {
-            let warn = KB.label("⚠️ 还没配置生成层：打开 Jev Jarvis App →「模型」页填 API Key",
+            let warn = KB.label("⚠️ 还没配置生成层：打开「秒回」App →「模型」页填 API Key",
                                 font: .systemFont(ofSize: 12), color: .systemOrange, lines: 0)
             vstack.addArrangedSubview(warn)
         }

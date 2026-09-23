@@ -16,7 +16,7 @@ struct SetupView: View {
                 howSection
                 privacySection
             }
-            .navigationTitle("Jev Jarvis")
+            .navigationTitle("秒回")
             .onAppear { refresh() }
             .onReceive(timer) { _ in refresh() }
         }
@@ -35,7 +35,7 @@ struct SetupView: View {
                 ok: kbStatus != nil && Date().timeIntervalSince(kbStatus!.lastSeen) < 90,
                 detail: kbStatus.map {
                     "最近使用：\(timeAgo($0.lastSeen))"
-                } ?? "还没检测到键盘被唤起过（在任意输入框里切换到 Jev 键盘即可）")
+                } ?? "还没检测到键盘被唤起过（在任意输入框里切换到秒回键盘即可）")
 
             row(icon: "lock.open", title: "允许完全访问",
                 ok: kbStatus?.hasFullAccess == true,
@@ -71,8 +71,8 @@ struct SetupView: View {
 
     private var howSection: some View {
         Section("三步启用") {
-            step(1, "设置 → 通用 → 键盘 → 键盘 → 添加新键盘 → Jev 键盘")
-            step(2, "回到「键盘」列表，点 Jev 键盘 → 打开「允许完全访问」")
+            step(1, "设置 → 通用 → 键盘 → 键盘 → 添加新键盘 → 秒回键盘")
+            step(2, "回到「键盘」列表，点秒回键盘 → 打开「允许完全访问」")
             step(3, "去「模型」页填一个 API Key（智谱 glm-4-flash 免费），然后到微信里用：长按消息 → 复制 → 键盘上点「分析剪贴板」")
         }
     }

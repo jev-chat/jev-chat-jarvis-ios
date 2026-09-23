@@ -33,7 +33,7 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Jev Jarvis
+        CFBundleDisplayName: 秒回
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         UILaunchScreen: {}
@@ -65,7 +65,7 @@ targets:
     info:
       path: Keyboard/Info.plist
       properties:
-        CFBundleDisplayName: Jev 键盘
+        CFBundleDisplayName: 秒回键盘
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSAppTransportSecurity:

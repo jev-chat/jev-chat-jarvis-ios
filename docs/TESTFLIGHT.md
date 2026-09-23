@@ -1,6 +1,6 @@
 # TestFlight 分发手册（借他人开发者账号版）
 
-给想把 Jev Jarvis 键盘发给一批人试用、但账号不是自己名下付费账号的情况。按顺序读，第 1 步的答案会决定后面走哪条路。
+给想把「秒回」键盘发给一批人试用、但账号不是自己名下付费账号的情况。按顺序读，第 1 步的答案会决定后面走哪条路。
 
 ---
 
@@ -121,7 +121,7 @@ plutil -p /tmp/JevJarvis.xcarchive/Products/Applications/JevJarvis.app/PlugIns/J
 |---|---|---|
 | 1. 注册 App ID | 个人账号只有朋友能做 | 门户 → Identifiers → 新建 App ID，Bundle ID 用 **explicit** `com.jevchat.jarvis.ios`（键盘扩展的 `com.jevchat.jarvis.ios.keyboard` 可一起建，也可由 Xcode 自动建） |
 | 2. 注册 App Group | 同上 | 门户 → Identifiers → App Groups → 新建 `group.com.jevchat.jarvis.ios`，**建完要勾选进上面那个 App ID**（漏这步签名会报 entitlement 不匹配） |
-| 3. 建 App 记录 | 朋友或你的 App Manager 角色 | ASC → My Apps → **+** → New App。Platform iOS / Name `Jev Jarvis` / Primary Language 简体中文 / Bundle ID 选第 1 步那个 / SKU 随便填唯一串 |
+| 3. 建 App 记录 | 朋友或你的 App Manager 角色 | ASC → My Apps → **+** → New App。Platform iOS / Name `秒回` / Primary Language 简体中文 / Bundle ID 选第 1 步那个 / SKU 随便填唯一串 |
 | 4. 把你加成 ASC 用户 | 朋友 | ASC → Users and Access → **+**。角色给 **App Manager**（够用）或 **Admin**。邀请链接 3 天过期 |
 | 5. （个人账号走这条）生成 Team API Key | 朋友 | ASC → Users and Access → **Integrations** → App Store Connect API → **Team Keys** → **+**。下载 `.p8`（**只能下一次**），记下 Key ID 和 Issuer ID |
 
@@ -215,15 +215,15 @@ plutil -p /tmp/JevJarvis.xcarchive/Products/Applications/JevJarvis.app/PlugIns/J
 
 ## 5. 给测试者的说明（直接复制发出去）
 
-> **装 Jev 键盘试用版**
+> **装「秒回」试用版**
 >
 > 1. 先在 App Store 装 **TestFlight**（苹果官方的测试工具）
 > 2. 用 iPhone 点开这个链接：`https://testflight.apple.com/join/XXXXXXXX`
-> 3. 在 TestFlight 里点「安装」，装好后**先打开一次 Jev Jarvis**（不打开的话下一步在设置里找不到键盘）
-> 4. 设置 → 通用 → 键盘 → 键盘 → **添加新键盘** → 选「**Jev 键盘**」
-> 5. 回到键盘列表，点「**Jev 键盘**」→ 打开「**允许完全访问**」→ 弹窗点「允许」
+> 3. 在 TestFlight 里点「安装」，装好后**先打开一次「秒回」**（不打开的话下一步在设置里找不到键盘）
+> 4. 设置 → 通用 → 键盘 → 键盘 → **添加新键盘** → 选「**秒回键盘**」
+> 5. 回到键盘列表，点「**秒回键盘**」→ 打开「**允许完全访问**」→ 弹窗点「允许」
 >    - 这个开关是必须的：键盘要联网才能生成候选回复，也要读剪贴板拿到你要分析的那条消息。系统弹窗的措辞看着吓人（"开发者可能访问你输入的内容"），实际只会把**你主动点「分析剪贴板」时**的那条消息发去生成回复。
-> 6. 在任意聊天窗口长按一条消息 → 复制 → 切到 Jev 键盘（长按左下角地球键）→ 点「分析剪贴板」
+> 6. 在任意聊天窗口长按一条消息 → 复制 → 切到秒回键盘（长按左下角地球键）→ 点「分析剪贴板」
 > 7. 候选出来点一下就插进输入框；点「发送」试它认不认换行（有的 App 不认）
 >
 > 有效期 90 天，到期我会发新的，重装一下就好。
@@ -239,7 +239,7 @@ plutil -p /tmp/JevJarvis.xcarchive/Products/Applications/JevJarvis.app/PlugIns/J
 | `The bundle version must be higher than...` | build number 没递增 | 改 `CURRENT_PROJECT_VERSION` |
 | 设置里找不到「允许完全访问」开关 | `RequestsOpenAccess` 放错层级（必须在 `NSExtension` → `NSExtensionAttributes` 里） | 改 `project.yml` 后 `xcodegen generate` |
 | 点输入框、键盘弹起时宿主 App 闪退 | `NSExtensionAttributes` 缺 `PrimaryLanguage` | 同上；崩溃签名是 `TIGetDefaultDictationLanguagesForKeyboardLanguage` |
-| 设置里看不到 Jev 键盘 | 装完没打开过宿主 App | 让测试者先启动一次 App |
+| 设置里看不到秒回键盘 | 装完没打开过宿主 App | 让测试者先启动一次 App |
 | 签名报 entitlement 不匹配 | App Group 建了但没勾进 App ID | 回门户把 App Group 关联到 App ID |
 | 外部测试者点链接提示不可用 | 第一个 build 还在 Beta App Review / 已过 90 天 | 看 ASC 的 TestFlight 状态 |
 | 被审核拒 | 明文 HTTP 发用户内容（4.4.1 「Transmit securely」） | 中转上 HTTPS，见 1.4 |
