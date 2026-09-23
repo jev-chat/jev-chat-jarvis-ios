@@ -16,11 +16,20 @@ final class KeyboardViewController: UIInputViewController {
     private var mode: Mode = .idle
     private var lastSource: Source = .clipboard
     private var lastMessage: String = ""
+    private var lastContext: String?
     private var analysis: Analysis?
     private var errorText: String = ""
     private var stageLabel = UILabel()
 
-    private enum Source { case clipboard, inputField }
+    private enum Source { case clipboard, inputField, live }
+
+    /// 直播模式（实验）：广播扩展持续录屏 + 本地 OCR，快照放 App Group。
+    /// 快照新鲜且有待回消息时，待机页把主入口从「分析剪贴板」换成「读屏幕分析」，
+    /// 用户就不再需要长按复制每条消息。
+    private var liveTimer: Timer?
+    private var lastLiveActive = false
+
+    private static func liveActive() -> Bool { JevLiveStore.isActionable }
 
     // MARK: 布局骨架
 
@@ -75,9 +84,32 @@ final class KeyboardViewController: UIInputViewController {
         // 回写状态：主 App「开始」页据此显示键盘是否已启用、是否给了完全访问
         JevStore.saveKeyboardStatus(KeyboardStatus(lastSeen: Date(), hasFullAccess: hasFullAccess))
         prewarm()
+        // 直播快照轮询：快照由广播扩展在别的进程里写，键盘只在待机页关心它活没活。
+        // 只在「没监听 ↔ 有监听」翻转时重画，避免每 2 秒重建视图打断点按。
+        lastLiveActive = Self.liveActive()
+        if liveTimer == nil {
+            liveTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+                self?.liveTick()
+            }
+        }
         // 刚出现时 frame 还没定，等键盘铺开后再量容器间隙
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
             self?.coverContainerGap()
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        liveTimer?.invalidate()
+        liveTimer = nil
+    }
+
+    private func liveTick() {
+        guard mode == .idle else { return }
+        let active = Self.liveActive()
+        if active != lastLiveActive {
+            lastLiveActive = active
+            render()
         }
     }
 
@@ -349,11 +381,25 @@ final class KeyboardViewController: UIInputViewController {
     private func idleView() -> UIView {
         let cfg = JevStore.loadConfig()
 
+        var rows: [UIView] = []
+        let liveOn = Self.liveActive()
+        if liveOn, let snap = JevLiveStore.load(), let latest = snap.latestIncoming {
+            let preview = String(latest.prefix(16)) + (latest.count > 16 ? "…" : "")
+            let liveBtn = KB.button("读屏幕分析：「\(preview)」",
+                                    icon: "dot.radiowaves.left.and.right", primary: true,
+                                    font: .systemFont(ofSize: 14, weight: .semibold))
+            liveBtn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            liveBtn.addTarget(self, action: #selector(analyzeLive), for: .touchUpInside)
+            rows.append(liveBtn)
+        }
+
         let guide = KB.label(
-            "长按对方消息 → 复制，再点下面的按钮",
+            liveOn ? "直播监听中 · 免复制，点上面的按钮直接分析"
+                   : "长按对方消息 → 复制，再点下面的按钮",
             font: .systemFont(ofSize: 12), color: KB.secondaryText)
 
-        let clipBtn = KB.button("分析剪贴板", icon: "doc.on.clipboard", primary: true,
+        let clipBtn = KB.button("分析剪贴板", icon: "doc.on.clipboard",
+                                primary: !liveOn,
                                 font: .systemFont(ofSize: 14, weight: .semibold))
         clipBtn.addTarget(self, action: #selector(analyzeClipboard), for: .touchUpInside)
 
@@ -361,7 +407,7 @@ final class KeyboardViewController: UIInputViewController {
                                  font: .systemFont(ofSize: 14, weight: .semibold))
         inputBtn.addTarget(self, action: #selector(analyzeInputField), for: .touchUpInside)
 
-        // 两个分析入口并排：左边读剪贴板（主路径，主色），右边读当前输入框
+        // 两个分析入口并排：左边读剪贴板，右边读当前输入框；直播活跃时主色让位给读屏幕
         let btnRow = UIStackView(arrangedSubviews: [clipBtn, inputBtn])
         btnRow.axis = .horizontal
         btnRow.spacing = 8
@@ -380,7 +426,10 @@ final class KeyboardViewController: UIInputViewController {
         // 待机页**不放**发送键：这一页还没有候选，没有可发的东西；而输入框一旦有字，
         // 宿主 App 自己的发送按钮就出来了（微信是「有内容时 + 变发送」），
         // 键盘下方再挂一个只是添乱。发送键只在结果页——点完候选、手还在面板上时用。
-        let vstack = UIStackView(arrangedSubviews: [guide, btnRow, tonesBtn])
+        rows.append(guide)
+        rows.append(btnRow)
+        rows.append(tonesBtn)
+        let vstack = UIStackView(arrangedSubviews: rows)
         vstack.axis = .vertical
         vstack.spacing = 8
         if !cfg.generation.key.isEmpty {
@@ -688,7 +737,7 @@ final class KeyboardViewController: UIInputViewController {
             setMode(.error)
             return
         }
-        run(message: text)
+        run(message: text, context: nil)
     }
 
     @objc private func analyzeInputField() {
@@ -701,14 +750,30 @@ final class KeyboardViewController: UIInputViewController {
             setMode(.error)
             return
         }
-        run(message: text)
+        run(message: text, context: nil)
     }
 
-    @objc private func regenerate() { run(message: lastMessage) }
+    /// 直播模式入口：不读剪贴板，读广播扩展 OCR 出来的对话快照。
+    /// message = 对方最新一条（多行合并），context = 之前的对话——和剪贴板路径走同一条管线。
+    @objc private func analyzeLive() {
+        lastSource = .live
+        guard hasFullAccess else { setMode(.gate); return }
+        guard let snap = JevLiveStore.load(), JevLiveStore.isFresh(snap),
+              let latest = snap.latestIncoming else {
+            errorText = "还没有可用的直播快照：先到「秒回」App 的「直播」页点按钮开始广播，"
+                + "回到聊天界面停留几秒再回来。"
+            setMode(.error)
+            return
+        }
+        run(message: latest, context: snap.contextText)
+    }
+
+    @objc private func regenerate() { run(message: lastMessage, context: lastContext) }
     @objc private func backToIdle() { setMode(.idle) }
 
-    private func run(message: String) {
+    private func run(message: String, context: String?) {
         lastMessage = message
+        lastContext = context
         setMode(.loading)
         stageLabel.text = "判断中…"
         let pipeline = JevPipeline(cfg: JevStore.loadConfig())

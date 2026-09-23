@@ -49,6 +49,7 @@ targets:
           - group.com.jevchat.jarvis.ios
     dependencies:
       - target: JevKeyboard
+      - target: JevLive
 
   JevKeyboard:
     type: app-extension
@@ -80,6 +81,35 @@ targets:
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
     entitlements:
       path: Keyboard/JevKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.jevchat.jarvis.ios
+
+  # 直播模式（实验）：ReplayKit 广播上传扩展。录屏 → 本地 OCR → 快照写 App Group。
+  # 只挂 Shared/JevLive.swift 一个共享文件，别把整条管线拖进 50MB 内存上限的进程。
+  JevLive:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Broadcast/Sources
+      - path: Shared/JevLive.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.ios.live
+        INFOPLIST_FILE: Broadcast/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Broadcast/JevLive.entitlements
+        SKIP_INSTALL: true
+    info:
+      path: Broadcast/Info.plist
+      properties:
+        CFBundleDisplayName: 秒回直播
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).LiveBroadcastHandler
+    entitlements:
+      path: Broadcast/JevLive.entitlements
       properties:
         com.apple.security.application-groups:
           - group.com.jevchat.jarvis.ios
