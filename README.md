@@ -19,8 +19,6 @@
   </tr>
 </table>
 
-交流群群码见文末[「交流反馈」](#交流反馈)。
-
 ## 用法
 
 ### 1. 装到 iPhone
@@ -124,22 +122,3 @@ Copyright © 2026 eatmoreduck 与 jev-chat 贡献者。代码以 [MIT](LICENSE) 
 - **仅供正当用途**：本项目只辅助你自己真诚的日常沟通。严禁用于任何违法违规行为，**包括但不限于任何形式的诈骗（杀猪盘、养老诈骗、婚恋诈骗）、冒充他人、骚扰、垃圾营销**。
 - **免责声明**：本项目按「现状」提供，作者不参与、不知情、也不为任何使用者的具体使用行为负责，由此产生的一切后果与法律责任由使用者自行承担。本项目只处理你自己设备上、你自己有权查看的聊天，候选只插入输入框，**永不自动发送**。
 - 完整风险告知见置顶 issue：[使用声明与风险告知](https://github.com/jev-chat/jev-chat-jarvis-ios/issues/2)。
-
-## 交流反馈
-
-也可扫码进交流群（1、2 群已满，从 3 群开始扫，满了顺序换下一个）；合作、反馈、进群也都可以公众号私信（二维码见顶部「反馈与帮助」）：
-
-<table>
-  <tr>
-    <td align="center"><img src="docs/wechat-group-2.png" width="200" alt="扫码加入交流群 2 群"><br><sub>2 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-3.png" width="200" alt="扫码加入交流群 3 群"><br><sub>3 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-4.png" width="200" alt="扫码加入交流群 4 群"><br><sub>4 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-5.png" width="200" alt="扫码加入交流群 5 群"><br><sub>5 群</sub></td>
-  </tr>
-</table>
-
-## ☕ 请我喝杯咖啡
-
-如果你觉得我写的这玩意儿对你有点帮助，欢迎请我喝杯咖啡。咖啡因一到位，脑子就开始冒泡，源源不断地驱动我往前跑；哪天我更新得特别勤，说明这杯续上了 😄
-
-<p align="center"><img src="docs/sponsor-qr.png" width="260" alt="赞赏码"></p>
