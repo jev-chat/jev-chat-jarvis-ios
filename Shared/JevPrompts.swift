@@ -76,11 +76,11 @@ func allTones(custom: [String: String]) -> [String: String] {
     return merged
 }
 
-// MARK: - 起草 prompt（与 macOS 版 src/generate.py PROMPT_ONE 逐字一致）
+// MARK: - 起草 prompt（沿用 macOS 版结构，面向通用聊天场景）
 
 /// {n} 出现两次是刻意的：「只要 n 行」的要求必须与条数一致，否则模型会自己凑一行。
 let PROMPT_ONE = """
-刚收到一条微信消息，你要帮我回。
+刚收到一条聊天消息，你要帮我回。
 
 {context_line}消息：「{message}」
 {intent_line}
@@ -89,7 +89,7 @@ let PROMPT_ONE = """
 
 硬性要求：
 - 前一条稳妥、可以直接发出去；后一条把这个语气做足，更皮、更夸张一点也行
-- 每条不超过 30 个字，是微信里打字的语气，不要客套话、不要解释
+- 每条不超过 30 个字，像日常聊天时打字的语气，不要客套话、不要解释
 - 只输出 {n} 行，每行一条，不要编号、不要引号、不要任何前后缀
 - 不要写出语气名称（不要写「{tone}：」这类前缀），直接从回复内容开始
 """

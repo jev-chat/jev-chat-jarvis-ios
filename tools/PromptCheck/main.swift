@@ -55,6 +55,7 @@ check("prompt·意图行", p.contains("判断出的意图：催进度") ? "ok" :
 check("prompt·话术行", p.contains("「稳如老狗」十年老工程师那种稳") ? "ok" : "missing", "ok")
 check("prompt·无残留占位符", p.contains("{") ? "has-placeholder" : "clean", "clean")
 check("prompt·条数一致", p.components(separatedBy: "请写 2 条").count == 2 ? "ok" : "bad", "ok")
+check("prompt·通用聊天场景", p.hasPrefix("刚收到一条聊天消息") && p.contains("像日常聊天时打字的语气") ? "ok" : "bad", "ok")
 
 let p2 = buildDraftPrompt(message: "在吗", intent: nil, context: "王总: 昨天的方案看完了吗",
                           tone: "已读乱回", instruction: "敷衍但不失礼", n: 2)
