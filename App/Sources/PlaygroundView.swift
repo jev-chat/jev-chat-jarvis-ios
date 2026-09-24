@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 试一试页：不切去微信，直接在 App 里跑完整管线，验证配置是否通。
+/// 试一试页：直接在 App 里跑完整管线，验证配置是否通。
 struct PlaygroundView: View {
     @EnvironmentObject private var store: ConfigStore
     @State private var message = "这个需求你今天跟一下，明天早上给我"

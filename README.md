@@ -1,8 +1,8 @@
 # jev-chat-jarvis（iOS · 键盘版）
 
-微信弹出一条消息 → 在**当前聊天 App 的键盘上**直接看到这句话的**意图、风险**和**候选回复**，点一下就进输入框。
+聊天 App 收到一条消息 → 在**当前聊天 App 的键盘上**直接看到这句话的**意图、风险**和**候选回复**，点一下就进输入框。
 
-不跳 App、不切后台、不申请录屏权限——**一个自定义键盘打通所有聊天软件**（微信 / QQ / 钉钉 / iMessage / WhatsApp……），任何输入框都能用。
+不跳 App、不切后台、不申请录屏权限——**一个自定义键盘打通所有聊天软件**，任何输入框都能用。
 
 <p align="center">
   <img src="docs/demo.gif" alt="键盘实际演示：长按复制对方消息 → 键盘上出意图/风险/候选 → 点按插入输入框" width="320">&nbsp;&nbsp;
@@ -35,16 +35,16 @@
 ### 2. 启用键盘（手机上操作）
 
 1. 设置 → 通用 → 键盘 → 键盘 → **添加新键盘** → 选「Jev 键盘」
-2. 回到键盘列表，点「Jev 键盘」→ 打开 **允许完全访问**（联网 + 读剪贴板必须，微信里搜狗键盘也是同款开关）
+2. 回到键盘列表，点「Jev 键盘」→ 打开 **允许完全访问**（联网 + 读剪贴板必须）
 3. 打开 Jev Jarvis App →「模型」页：选个预设（智谱 `glm-4-flash` 免费 / DeepSeek 最快 / OpenRouter 一个 key 全模型），填 Key，点「测试连接」
 4. 到「试一试」页跑一条消息，通了就是全通了
 
-### 3. 日常使用（以微信为例）
+### 3. 在聊天 App 中使用
 
 1. 长按对方那条消息 → **复制**
 2. 输入框获得焦点，键盘切到 Jev（地球键切换）→ 点 **「分析剪贴板」**
 3. 键盘上显示：意图 + 风险 0-9 + 行动建议 + 每话术 2 条候选（前稳后放）
-4. 点中意的候选 → 文字直接进微信输入框 → **发送由你手动完成**（本项目永不自动发送）
+4. 点中意的候选 → 文字直接进入当前输入框 → **发送由你手动完成**（本项目永不自动发送）
 
 另有「分析输入框文字」按钮：分析你打到一半拿不准的话（读 `documentContextBeforeInput`）。
 
@@ -64,7 +64,7 @@
 
 ## 口径回归
 
-`Shared/` 目录是 App 与键盘共用的单一口径层：意图集、风险量表、行动建议、话术库、起草 prompt、候选清洗和 URL 拼接规则都只在这一份实现里，两端行为永远一致。
+`Shared/` 目录是 App 与键盘共用的单一口径层：意图集、风险量表、行动建议、话术库、起草 prompt、候选清洗和 URL 拼接规则都只在这一份实现里，两端行为一致。起草 prompt 面向通用聊天场景。
 
 口径回归（Mac 上直接跑，不需要 iPhone）：
 
@@ -101,7 +101,7 @@ xcodebuild -project JevJarvis.xcodeproj -target JevJarvis -sdk iphoneos \
 
 ## 已知限制
 
-- **复制的消息不含上下文**：剪贴板里只有那一条。微信「引用」后再复制会带上被引文字，可当简易上下文用；多轮上下文见路线图
+- **复制的消息不含上下文**：剪贴板里通常只有那一条。如果聊天 App 支持复制引用内容，可借此带上被引文字；多轮上下文见路线图
 - 键盘高度固定 320pt，候选多时可滚动；横屏未适配
 - App Group 需两个 target 同一 Team 签名；免费个人账号一般可用，个别情况下需付费账号
 - 密码框等安全输入会强制系统键盘（系统行为，不是 bug）
@@ -131,10 +131,10 @@ Copyright © 2026 eatmoreduck 与 jev-chat 贡献者。代码以 [MIT](LICENSE) 
 
 <table>
   <tr>
-    <td align="center"><img src="docs/wechat-group-2.png" width="200" alt="扫码加入微信交流群 2 群"><br><sub>2 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-3.png" width="200" alt="扫码加入微信交流群 3 群"><br><sub>3 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-4.png" width="200" alt="扫码加入微信交流群 4 群"><br><sub>4 群</sub></td>
-    <td align="center"><img src="docs/wechat-group-5.png" width="200" alt="扫码加入微信交流群 5 群"><br><sub>5 群</sub></td>
+    <td align="center"><img src="docs/wechat-group-2.png" width="200" alt="扫码加入交流群 2 群"><br><sub>2 群</sub></td>
+    <td align="center"><img src="docs/wechat-group-3.png" width="200" alt="扫码加入交流群 3 群"><br><sub>3 群</sub></td>
+    <td align="center"><img src="docs/wechat-group-4.png" width="200" alt="扫码加入交流群 4 群"><br><sub>4 群</sub></td>
+    <td align="center"><img src="docs/wechat-group-5.png" width="200" alt="扫码加入交流群 5 群"><br><sub>5 群</sub></td>
   </tr>
 </table>
 
@@ -142,4 +142,4 @@ Copyright © 2026 eatmoreduck 与 jev-chat 贡献者。代码以 [MIT](LICENSE) 
 
 如果你觉得我写的这玩意儿对你有点帮助，欢迎请我喝杯咖啡。咖啡因一到位，脑子就开始冒泡，源源不断地驱动我往前跑；哪天我更新得特别勤，说明这杯续上了 😄
 
-<p align="center"><img src="docs/sponsor-qr.png" width="260" alt="微信赞赏码"></p>
+<p align="center"><img src="docs/sponsor-qr.png" width="260" alt="赞赏码"></p>

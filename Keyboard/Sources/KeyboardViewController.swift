@@ -378,7 +378,7 @@ final class KeyboardViewController: UIInputViewController {
         tonesBtn.addTarget(self, action: #selector(openTonePicker), for: .touchUpInside)
 
         // 待机页**不放**发送键：这一页还没有候选，没有可发的东西；而输入框一旦有字，
-        // 宿主 App 自己的发送按钮就出来了（微信是「有内容时 + 变发送」），
+        // 宿主 App 自己的发送按钮就出来了，
         // 键盘下方再挂一个只是添乱。发送键只在结果页——点完候选、手还在面板上时用。
         let vstack = UIStackView(arrangedSubviews: [guide, btnRow, tonesBtn])
         vstack.axis = .vertical
@@ -591,7 +591,7 @@ final class KeyboardViewController: UIInputViewController {
         ])
         outer.addArrangedSubview(scroll)
 
-        // 底部操作：发送挪到右下角（像微信那样），左边留给换一批/返回
+        // 底部操作：发送挪到右下角，左边留给换一批/返回
         let send = KB.button("发送", icon: "paperplane.fill", primary: true)
         send.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         send.widthAnchor.constraint(equalToConstant: 96).isActive = true

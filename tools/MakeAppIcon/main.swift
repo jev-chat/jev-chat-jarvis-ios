@@ -1,6 +1,6 @@
 // Renders App/Assets.xcassets/AppIcon.appiconset — the iPhone app icon.
 //
-// Same design as the macOS app (jev-jarvis/packaging/make_icon.py): WeChat-green
+// Same design as the macOS app (jev-jarvis/packaging/make_icon.py): bright green
 // tile, white "J", speech-bubble tail. Two deliberate differences:
 //
 //  1. Full bleed. The macOS icon is inset ~9% with pre-rounded corners because that
@@ -20,7 +20,7 @@ import CoreGraphics
 import ImageIO
 import UniformTypeIdentifiers
 
-let green = CGColor(red: 0.027, green: 0.757, blue: 0.376, alpha: 1.0)  // WeChat #07C160
+let green = CGColor(red: 0.027, green: 0.757, blue: 0.376, alpha: 1.0)  // #07C160
 
 // Ratios of the green tile's side, from the macOS script.
 let jFontRatio = 0.682927

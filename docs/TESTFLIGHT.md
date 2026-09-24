@@ -30,7 +30,7 @@
 
 `App/Assets.xcassets/AppIcon.appiconset` 已就位：iPhone 全部尺寸 + 一张 **1024×1024** 的 App Store 槽位；`project.yml` 里 `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` 与新的 `App/Assets.xcassets` source 都已生效（改 `project.yml` 后记得 `xcodegen generate`）。
 
-图标沿用 macOS 版设计（微信绿底 + 白色 J + 气泡尾巴），由 `tools/MakeAppIcon/main.swift` 画出：
+图标沿用 macOS 版设计（绿色底色 + 白色 J + 气泡尾巴），由 `tools/MakeAppIcon/main.swift` 画出：
 
 ```bash
 swiftc -O -o /tmp/makeappicon tools/MakeAppIcon/main.swift && /tmp/makeappicon App/Assets.xcassets/AppIcon.appiconset
