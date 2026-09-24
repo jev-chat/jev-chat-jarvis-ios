@@ -33,6 +33,7 @@
 		D2D2A3CE110F0E2917FE13C5 /* LiveBroadcastHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F4E0A16B2B156508B71B69 /* LiveBroadcastHandler.swift */; };
 		D67E6C3EB4A3681763813A68 /* JevKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B1D974B863D36BEC90B7AD48 /* JevKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E4BE80B596BE426D51ABA6AB /* JevJudge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DAB25961984A009B2F4762 /* JevJudge.swift */; };
+		EE9044CDE216000BD47563CF /* LiveBroadcastUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F68E634949DF84390FC9567 /* LiveBroadcastUITests.swift */; };
 		F75AF192F6299A272F3298BD /* JevHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01311D68AC2C69F77E0DC7C7 /* JevHTTP.swift */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 351B88DB1B3EF6331244F6DA;
 			remoteInfo = JevKeyboard;
+		};
+		D2F7296888ACF614D3520AE9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 80B8D107224A34195DE0E416 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 205C01470B395064AF121AAC;
+			remoteInfo = JevJarvis;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -72,6 +80,7 @@
 		01311D68AC2C69F77E0DC7C7 /* JevHTTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevHTTP.swift; sourceTree = "<group>"; };
 		0D68F993A4A84C86E0CF1ECD /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		3D4FE8249C157D2DDBC979BE /* PlaygroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaygroundView.swift; sourceTree = "<group>"; };
+		4650D3205CEFA69345CDCC12 /* JevJarvisUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JevJarvisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4706347BFCC4EE72CC451921 /* KeyboardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViews.swift; sourceTree = "<group>"; };
 		50D9095B78A5C08B16FBF521 /* JevLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevLive.swift; sourceTree = "<group>"; };
 		58DAA46B238D923CABDE9A04 /* ProvidersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvidersView.swift; sourceTree = "<group>"; };
@@ -81,6 +90,7 @@
 		7DA29D4259AB9334A52ED37A /* TonesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonesView.swift; sourceTree = "<group>"; };
 		8C0239472D88197A3E899EE4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8C04CB501B0AA12526FFF1A3 /* JevPrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevPrompts.swift; sourceTree = "<group>"; };
+		8F68E634949DF84390FC9567 /* LiveBroadcastUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveBroadcastUITests.swift; sourceTree = "<group>"; };
 		97932251F7F4348FE16751C5 /* JevJarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevJarvisApp.swift; sourceTree = "<group>"; };
 		A14D2323AF83D9E69FDCB679 /* JevJarvis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JevJarvis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1D974B863D36BEC90B7AD48 /* JevKeyboard.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = JevKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				A14D2323AF83D9E69FDCB679 /* JevJarvis.app */,
+				4650D3205CEFA69345CDCC12 /* JevJarvisUITests.xctest */,
 				B1D974B863D36BEC90B7AD48 /* JevKeyboard.appex */,
 				6D9D0D00636B0E10294896F3 /* JevLive.appex */,
 			);
@@ -131,6 +142,7 @@
 				A03C7CC988E05F41FECD8DCE /* Broadcast */,
 				D9DDA63D5CC9889F452D3C41 /* Keyboard */,
 				B729B45DFDAC53E1323737DE /* Shared */,
+				D1D1788D327D8362AF22A9BD /* UITests */,
 				3B3E8CC2C661B3DB91C74ABA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -174,6 +186,14 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		D1D1788D327D8362AF22A9BD /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				8F68E634949DF84390FC9567 /* LiveBroadcastUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		D9DDA63D5CC9889F452D3C41 /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
@@ -201,6 +221,24 @@
 			productName = JevLive;
 			productReference = 6D9D0D00636B0E10294896F3 /* JevLive.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		0FC0283F4DCF33E631462535 /* JevJarvisUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33660715B4670149F1D5F489 /* Build configuration list for PBXNativeTarget "JevJarvisUITests" */;
+			buildPhases = (
+				8B7A6477454B6E096447F515 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				47ADDCF779E563C983C576EA /* PBXTargetDependency */,
+			);
+			name = JevJarvisUITests;
+			packageProductDependencies = (
+			);
+			productName = JevJarvisUITests;
+			productReference = 4650D3205CEFA69345CDCC12 /* JevJarvisUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		205C01470B395064AF121AAC /* JevJarvis */ = {
 			isa = PBXNativeTarget;
@@ -253,6 +291,11 @@
 						DevelopmentTeam = XZWGHPX856;
 						ProvisioningStyle = Automatic;
 					};
+					0FC0283F4DCF33E631462535 = {
+						DevelopmentTeam = XZWGHPX856;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 205C01470B395064AF121AAC;
+					};
 					205C01470B395064AF121AAC = {
 						DevelopmentTeam = XZWGHPX856;
 						ProvisioningStyle = Automatic;
@@ -280,6 +323,7 @@
 				205C01470B395064AF121AAC /* JevJarvis */,
 				351B88DB1B3EF6331244F6DA /* JevKeyboard */,
 				010E25CF751440676AAACD0E /* JevLive */,
+				0FC0283F4DCF33E631462535 /* JevJarvisUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -309,6 +353,14 @@
 				316CD8525CFEAD5329B1D534 /* JevPrompts.swift in Sources */,
 				CF3E23ACADEF845E5220996A /* KeyboardViewController.swift in Sources */,
 				B91654FC5E8B2A61C519C46F /* KeyboardViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B7A6477454B6E096447F515 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE9044CDE216000BD47563CF /* LiveBroadcastUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -353,6 +405,11 @@
 			isa = PBXTargetDependency;
 			target = 351B88DB1B3EF6331244F6DA /* JevKeyboard */;
 			targetProxy = A573D35B521271DE2C2AC39C /* PBXContainerItemProxy */;
+		};
+		47ADDCF779E563C983C576EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 205C01470B395064AF121AAC /* JevJarvis */;
+			targetProxy = D2F7296888ACF614D3520AE9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -590,6 +647,40 @@
 			};
 			name = Debug;
 		};
+		DA7E5A6F5DFE071658BF0E25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JevJarvis;
+			};
+			name = Debug;
+		};
+		F6A748BD3F8DEEB846245646 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JevJarvis;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -598,6 +689,15 @@
 			buildConfigurations = (
 				837D17D69C95EAFA954F396A /* Debug */,
 				4B44BD7A4AEF5BE82639D4B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		33660715B4670149F1D5F489 /* Build configuration list for PBXNativeTarget "JevJarvisUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA7E5A6F5DFE071658BF0E25 /* Debug */,
+				F6A748BD3F8DEEB846245646 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -115,7 +115,7 @@ check(lines.last?.side == .them, "末尾是对方消息")
 check(lines.last?.text.contains("餐厅") == true, "末行文本含「餐厅」，实际：\(lines.last?.text ?? "nil")")
 
 if !lines.isEmpty {
-    let snap = LiveSnapshot(updatedAt: Date(), lines: lines, frameCount: 1)
+    let snap = LiveSnapshot(updatedAt: Date(), changedAt: Date(), lines: lines, frameCount: 1)
     check(snap.latestIncoming?.contains("餐厅") == true,
           "latestIncoming = 末条对方消息（含「餐厅」），实际：\(snap.latestIncoming ?? "nil")")
     let ctxText = snap.contextText ?? ""

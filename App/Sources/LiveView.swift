@@ -52,16 +52,20 @@ struct LiveView: View {
                     .foregroundColor(isLive ? .green : .secondary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isLive ? "监听中" : "未在监听").font(.callout.weight(.semibold))
-                    if let snap = snapshot {
-                        Text("最后识别到变化：\(snap.updatedAt.formatted(date: .omitted, time: .standard)) · \(snap.frameCount) 帧")
+                    if let snap = snapshot, isLive {
+                        Text(snap.frameCount == 0
+                             ? "广播已启动 · 等待第一帧识别…"
+                             : "画面变化 \(snap.changedAt.formatted(date: .omitted, time: .standard)) · 已识别 \(snap.frameCount) 帧")
                             .font(.caption2).foregroundColor(.secondary)
                     } else {
                         Text("点下面按钮 → 选「秒回直播」→ 开始广播").font(.caption2).foregroundColor(.secondary)
                     }
                 }
             }
+            // ⚠️ 必须给紧凑的固定尺寸：整宽摆放时 iOS 26/27 上这个系统控件不渲染内部按钮
+            //（区域全空白、点了没反应——2026-09-24 真机首测「一直未在监听」的直接原因）
             BroadcastPickerView()
-                .frame(height: 44)
+                .frame(width: 64, height: 44)
                 .frame(maxWidth: .infinity)
             Text("开始后切到任意聊天 App，这里会持续识别屏幕上的对话（每 2 秒一次，纯本地 OCR，只有拿去生成回复的对话文本会发给你自己配的模型）。状态栏会出现系统的紫色录屏指示，停止就在控制中心或回到这里点按钮。")
                 .font(.caption).foregroundColor(.secondary)
@@ -193,9 +197,8 @@ struct LiveView: View {
               let snap, JevLiveStore.isFresh(snap),
               let latest = snap.latestIncoming else { return }
         guard latest != lastAnalyzed else { return }
-        // 防抖：updatedAt 是画面最后一次变化的时间，稳定 2.5 秒后再分析，
-        // 不然对方连发三条会生成三次、白烧前两次的 token
-        guard Date().timeIntervalSince(snap.updatedAt) > 2.5 else { return }
+        // 防抖看 changedAt（画面内容最后一次变化）：对方连发三条会生成三次、白烧前两次的 token
+        guard Date().timeIntervalSince(snap.changedAt) > 2.5 else { return }
         analyze(latest: latest, context: snap.contextText)
     }
 
@@ -217,11 +220,20 @@ struct LiveView: View {
 
 /// RPSystemBroadcastPickerView 是系统控件，点它弹系统面板（列出本 App 的广播扩展），
 /// preferredExtension 让「秒回直播」排第一，用户基本只需再点一下「开始直播」。
+///
+/// ⚠️ 必须用带非零 frame 的构造器（2026-09-24 真机首测「一直未在监听」的根因）：
+/// 默认 init 是零尺寸，内部按钮会被布局成 frame=(inf,inf,0,0)——按钮永久不可见也不可点，
+/// 系统面板永远弹不出来。diag 视图树抓的现行。
+/// 即便如此面板仍可能不弹（模拟器+真机一致，见 docs/LIVE_MODE.md「交接状态」）。
 struct BroadcastPickerView: UIViewRepresentable {
     func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
-        let picker = RPSystemBroadcastPickerView()
+        let picker = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
         picker.showsMicrophoneButton = false
         picker.preferredExtension = "com.jevchat.jarvis.ios.live"
+        // 无障碍 + 真机 UI 自动化（XCUITest 靠这个 identifier 点它）
+        picker.isAccessibilityElement = true
+        picker.accessibilityIdentifier = "broadcastPicker"
+        picker.accessibilityLabel = "开始屏幕广播"
         return picker
     }
 

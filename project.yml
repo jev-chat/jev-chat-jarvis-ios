@@ -113,3 +113,30 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.jevchat.jarvis.ios
+
+  # 真机 UI 自动化：USB 连着手机 `xcodebuild test -scheme JevJarvis` 全自动回归直播链路。
+  # 测试器会往系统广播面板（SpringBoard 进程）里点「开始/停止直播」，手机需解锁且别拔线。
+  JevJarvisUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: JevJarvis
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.ios.uitests
+        GENERATE_INFOPLIST_FILE: true
+        TEST_TARGET_NAME: JevJarvis
+
+schemes:
+  JevJarvis:
+    build:
+      targets:
+        JevJarvis: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - JevJarvisUITests

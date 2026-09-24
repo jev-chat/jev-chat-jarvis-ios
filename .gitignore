@@ -4,3 +4,8 @@ DerivedData/
 *.xcuserdatad/
 xcuserdata/
 .swiftpm/
+
+# 测试与诊断产物（XCUITest 结果包、设备日志归档、覆盖率）
+*.xcresult/
+*.logarchive/
+*.profraw/

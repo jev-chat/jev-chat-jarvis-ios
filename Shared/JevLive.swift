@@ -1,6 +1,7 @@
 import Foundation
 import Vision
 import CoreVideo
+import Accelerate
 
 // MARK: - 直播模式（实验分支）：录屏 → 本地 OCR → 解析对话 → 免复制出候选
 //
@@ -21,10 +22,14 @@ struct LiveLine: Codable, Equatable {
 }
 
 /// 一次识别的完整快照。存 App Group UserDefaults，跨进程共享：
-/// 广播扩展写，键盘与主 App 读。画面没变化时不重写，所以 updatedAt 兼任「画面最后一次变动」
-/// 的时间戳，主 App 用它做防抖（对方连发时不急着分析最后一条）。
+/// 广播扩展写，键盘与主 App 读。
+/// 两个时间戳各司其职：`updatedAt` 是**心跳**（扩展每 2 秒落盘一次，广播活着它就新），
+/// `changedAt` 才是**画面内容最后一次变化**（主 App 用它做防抖，对方连发时不急着分析）。
+/// 早期版本只有「内容变了才落盘」一个语义，结果广播刚启动、OCR 冷启动还没出活的窗口里
+/// App 永远显示「未在监听」（2026-09-24 真机第一次实测就是死在这上头）。
 struct LiveSnapshot: Codable, Equatable {
     var updatedAt: Date
+    var changedAt: Date
     var lines: [LiveLine]
     /// 扩展自启动以来见过的帧数（诊断用，够判断「广播活着但没有新帧」）
     var frameCount: Int
@@ -152,12 +157,13 @@ enum LiveChatParser {
 /// 快照的唯一存放点。不放新文件进容器目录——UserDefaults 跨进程同步由 cfprefsd 负责，
 /// 键盘 2 秒轮询一次小 key 的开销可以忽略。
 enum JevLiveStore {
-    static let snapshotKey = "jev.live.snapshot.v1"
+    /// v2：加了 changedAt 字段。v1 从来没有成功写出来过（见 LiveSnapshot 注释），无需迁移。
+    static let snapshotKey = "jev.live.snapshot.v2"
     /// 与 JevStore.appGroupID 同值。JevLive.swift 单文件编译进广播扩展（不带 JevModel），
     /// 所以这里自带一份——改 App Group 时 entitlements / project.yml / 这两处要一起改。
     private static let appGroupID = "group.com.jevchat.jarvis.ios"
-    /// 快照多久之内算「监听中」。广播一停扩展就没了，快照自然过期，
-    /// 键盘/主 App 据此回到空闲，不需要显式的停止信号。
+    /// 快照多久之内算「监听中」。扩展靠 2 秒一次的心跳维持 updatedAt，
+    /// 广播一停快照自然过期，键盘/主 App 据此回到空闲，不需要显式的停止信号。
     static let freshWindow: TimeInterval = 150
 
     private static var defaults: UserDefaults {
@@ -185,6 +191,17 @@ enum JevLiveStore {
         guard let snap = load(), isFresh(snap), snap.latestIncoming != nil else { return false }
         return true
     }
+
+    #if DEBUG
+    /// 扩展侧自检日志。广播扩展连 Xcode 控制台都看不着，出问题全靠这一条通道
+    /// （与 JevStore.diag 共用同一个 key：App/键盘/扩展三个进程谁写的都能读到）。
+    static func diag(_ line: String) {
+        let stamp = String(format: "%.3f", Date().timeIntervalSince1970)
+        let prev = defaults.string(forKey: "jev.diag.v1") ?? ""
+        defaults.set(String((prev + "[\(stamp)] [直播] \(line)\n").suffix(6000)),
+                     forKey: "jev.diag.v1")
+    }
+    #endif
 }
 
 // MARK: - OCR 引擎（广播扩展与自检页共用的同一条识别路径）
@@ -202,7 +219,10 @@ enum LiveOCREngine {
         // 广播扩展内存上限 ~50MB（jetsam 硬杀）：识别全程包在 autoreleasepool 里，
         // 帧用完即还；识别档位与耗时见 makeRequest() 里的说明。
         autoreleasepool {
-            let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up)
+            // 全屏帧（1170×2532 的 NV12 ≈ 11.9MB，Vision 内部中间缓冲还要翻几倍）
+            // 直接喂 accurate 档有顶爆 50MB 的风险——先缩到 720 宽灰度图（≈1.1MB）再识别
+            let buffer = downscaledGray(pixelBuffer) ?? pixelBuffer
+            let handler = VNImageRequestHandler(cvPixelBuffer: buffer, orientation: .up)
             let request = makeRequest()
             try? handler.perform([request])
             lines = finish(request)
@@ -241,5 +261,43 @@ enum LiveOCREngine {
             return LiveChatParser.Observation(text: text, boundingBox: o.boundingBox)
         }
         return LiveChatParser.parse(observations)
+    }
+
+    /// 缩到 ≤720 宽的单通道灰度 buffer。ReplayKit 的帧是 NV12，plane0 本身就是亮度图，
+    /// 直接用 vImage 缩放——不用 CIContext（那玩意自己就吃掉几十 MB），不经 RGB 转换。
+    /// 非 NV12 返回 nil，调用方退回原 buffer：宁可多花内存，不牺牲正确性。
+    private static func downscaledGray(_ src: CVPixelBuffer) -> CVPixelBuffer? {
+        let format = CVPixelBufferGetPixelFormatType(src)
+        guard format == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+                || format == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+              CVPixelBufferGetPlaneCount(src) > 0 else { return nil }
+
+        let srcW = CVPixelBufferGetWidth(src)
+        let srcH = CVPixelBufferGetHeight(src)
+        let targetW = 720
+        guard srcW > targetW else { return nil }
+        var dst: CVPixelBuffer?
+        let createStatus = CVPixelBufferCreate(
+            kCFAllocatorDefault, targetW, Int(Double(srcH) / Double(srcW) * Double(targetW)),
+            kCVPixelFormatType_OneComponent8, nil, &dst)
+        guard createStatus == kCVReturnSuccess, let gray = dst else { return nil }
+
+        CVPixelBufferLockBaseAddress(src, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(src, .readOnly) }
+        var srcBuf = vImage_Buffer(
+            data: CVPixelBufferGetBaseAddressOfPlane(src, 0),
+            height: vImagePixelCount(CVPixelBufferGetHeightOfPlane(src, 0)),
+            width: vImagePixelCount(CVPixelBufferGetWidthOfPlane(src, 0)),
+            rowBytes: CVPixelBufferGetBytesPerRowOfPlane(src, 0))
+        CVPixelBufferLockBaseAddress(gray, [])
+        defer { CVPixelBufferUnlockBaseAddress(gray, []) }
+        var dstBuf = vImage_Buffer(
+            data: CVPixelBufferGetBaseAddress(gray),
+            height: vImagePixelCount(CVPixelBufferGetHeight(gray)),
+            width: vImagePixelCount(CVPixelBufferGetWidth(gray)),
+            rowBytes: CVPixelBufferGetBytesPerRow(gray))
+        let err = vImageScale_Planar8(&srcBuf, &dstBuf, nil,
+                                      vImage_Flags(kvImageHighQualityResampling))
+        return err == kvImageNoError ? gray : nil
     }
 }
