@@ -35,6 +35,8 @@ struct JevJarvisApp: App {
                     .tabItem { Label("模型", systemImage: "brain.head.profile") }
                 TonesView()
                     .tabItem { Label("话术", systemImage: "theatermasks") }
+                LiveView()
+                    .tabItem { Label("直播", systemImage: "dot.radiowaves.left.and.right") }
                 PlaygroundView()
                     .tabItem { Label("试一试", systemImage: "flask") }
             }

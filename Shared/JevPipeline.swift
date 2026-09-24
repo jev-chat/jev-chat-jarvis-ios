@@ -65,7 +65,7 @@ final class JevPipeline {
             return out
         }
         guard draft.isConfigured else {
-            out.fatalError = "还没配置生成层：打开 Jev Jarvis App →「模型」页填 API Key"
+            out.fatalError = "还没配置生成层：打开「秒回」App →「模型」页填 API Key"
             return out
         }
 
