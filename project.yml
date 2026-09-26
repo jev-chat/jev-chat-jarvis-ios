@@ -11,7 +11,7 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
     TARGETED_DEVICE_FAMILY: "1"
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: XZWGHPX856
+    DEVELOPMENT_TEAM: 75LZ93U5CF
     CURRENT_PROJECT_VERSION: "1"
     MARKETING_VERSION: "0.1.0"
     GENERATE_INFOPLIST_FILE: false
@@ -26,7 +26,8 @@ targets:
       - path: Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.ios
+        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis
+        TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App/JevJarvis.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -46,7 +47,7 @@ targets:
       path: App/JevJarvis.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.jevchat.jarvis.ios
+          - group.com.jevchat.jarvis
     dependencies:
       - target: JevKeyboard
 
@@ -58,7 +59,8 @@ targets:
       - path: Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.ios.keyboard
+        PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.keyboard
+        TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: Keyboard/Info.plist
         CODE_SIGN_ENTITLEMENTS: Keyboard/JevKeyboard.entitlements
         SKIP_INSTALL: true
@@ -82,4 +84,4 @@ targets:
       path: Keyboard/JevKeyboard.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.jevchat.jarvis.ios
+          - group.com.jevchat.jarvis

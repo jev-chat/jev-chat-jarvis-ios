@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		2A1CE544CB721888C80482AC /* JevDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = E468153E66BE1ACAABC3DDC3 /* JevDraft.swift */; };
+		2B5E7D8A4C91E6F0A3D72C11 /* JevLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C2A1D7B6E9C30D5A4F218 /* JevLocalization.swift */; };
 		2DDAB9F8E34B3491F95E951D /* ProvidersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DAA46B238D923CABDE9A04 /* ProvidersView.swift */; };
 		316CD8525CFEAD5329B1D534 /* JevPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04CB501B0AA12526FFF1A3 /* JevPrompts.swift */; };
 		5A073866199133CCBF20DF76 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C0239472D88197A3E899EE4 /* Assets.xcassets */; };
 		5C820E4132398F7BC039CC92 /* JevDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = E468153E66BE1ACAABC3DDC3 /* JevDraft.swift */; };
 		5D6A0F45BAD570C768CD51B1 /* JevPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04CB501B0AA12526FFF1A3 /* JevPrompts.swift */; };
+		5E3A1C7F9B2D4E608A6C1F33 /* JevLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C2A1D7B6E9C30D5A4F218 /* JevLocalization.swift */; };
 		60A21DE291B06C6785EC4F8A /* TonesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA29D4259AB9334A52ED37A /* TonesView.swift */; };
 		6CDFA8F322ED6E2C5A2C458F /* JevModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5E8120955C443F40DBBC94 /* JevModel.swift */; };
 		75BF9371D4A495708E65AA91 /* JevPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59C6E67F4EECF593DCFDEF93 /* JevPipeline.swift */; };
@@ -59,6 +61,7 @@
 		0D68F993A4A84C86E0CF1ECD /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		3D4FE8249C157D2DDBC979BE /* PlaygroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaygroundView.swift; sourceTree = "<group>"; };
 		4706347BFCC4EE72CC451921 /* KeyboardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViews.swift; sourceTree = "<group>"; };
+		4F8C2A1D7B6E9C30D5A4F218 /* JevLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevLocalization.swift; sourceTree = "<group>"; };
 		58DAA46B238D923CABDE9A04 /* ProvidersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvidersView.swift; sourceTree = "<group>"; };
 		59C6E67F4EECF593DCFDEF93 /* JevPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevPipeline.swift; sourceTree = "<group>"; };
 		66DAB25961984A009B2F4762 /* JevJudge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevJudge.swift; sourceTree = "<group>"; };
@@ -66,8 +69,8 @@
 		8C0239472D88197A3E899EE4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8C04CB501B0AA12526FFF1A3 /* JevPrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevPrompts.swift; sourceTree = "<group>"; };
 		97932251F7F4348FE16751C5 /* JevJarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevJarvisApp.swift; sourceTree = "<group>"; };
-		A14D2323AF83D9E69FDCB679 /* JevJarvis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JevJarvis.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B1D974B863D36BEC90B7AD48 /* JevKeyboard.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = JevKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A14D2323AF83D9E69FDCB679 /* JevJarvis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JevJarvis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1D974B863D36BEC90B7AD48 /* JevKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JevKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E468153E66BE1ACAABC3DDC3 /* JevDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevDraft.swift; sourceTree = "<group>"; };
 		E845E71C6394DFDAAD38B7EA /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		FC5E8120955C443F40DBBC94 /* JevModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevModel.swift; sourceTree = "<group>"; };
@@ -131,6 +134,7 @@
 				66DAB25961984A009B2F4762 /* JevJudge.swift */,
 				FC5E8120955C443F40DBBC94 /* JevModel.swift */,
 				59C6E67F4EECF593DCFDEF93 /* JevPipeline.swift */,
+				4F8C2A1D7B6E9C30D5A4F218 /* JevLocalization.swift */,
 				8C04CB501B0AA12526FFF1A3 /* JevPrompts.swift */,
 			);
 			path = Shared;
@@ -194,11 +198,9 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					205C01470B395064AF121AAC = {
-						DevelopmentTeam = XZWGHPX856;
 						ProvisioningStyle = Automatic;
 					};
 					351B88DB1B3EF6331244F6DA = {
-						DevelopmentTeam = XZWGHPX856;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -244,6 +246,7 @@
 				E4BE80B596BE426D51ABA6AB /* JevJudge.swift in Sources */,
 				96FFC7E9CFEDCDEA0BBDB029 /* JevModel.swift in Sources */,
 				CF0A96BCA766F517CAB28CDD /* JevPipeline.swift in Sources */,
+				5E3A1C7F9B2D4E608A6C1F33 /* JevLocalization.swift in Sources */,
 				316CD8525CFEAD5329B1D534 /* JevPrompts.swift in Sources */,
 				CF3E23ACADEF845E5220996A /* KeyboardViewController.swift in Sources */,
 				B91654FC5E8B2A61C519C46F /* KeyboardViews.swift in Sources */,
@@ -260,6 +263,7 @@
 				A135CC6B64654766B5183A7C /* JevJudge.swift in Sources */,
 				6CDFA8F322ED6E2C5A2C458F /* JevModel.swift in Sources */,
 				75BF9371D4A495708E65AA91 /* JevPipeline.swift in Sources */,
+				2B5E7D8A4C91E6F0A3D72C11 /* JevLocalization.swift in Sources */,
 				5D6A0F45BAD570C768CD51B1 /* JevPrompts.swift in Sources */,
 				BBD83E88D595AAF9DE5D3909 /* PlaygroundView.swift in Sources */,
 				2DDAB9F8E34B3491F95E951D /* ProvidersView.swift in Sources */,
@@ -283,16 +287,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Keyboard/JevKeyboard.entitlements;
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios.keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.keyboard;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -302,14 +307,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/JevJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -317,16 +323,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Keyboard/JevKeyboard.entitlements;
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				INFOPLIST_FILE = Keyboard/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios.keyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.keyboard;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -367,7 +374,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = XZWGHPX856;
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -429,7 +436,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = XZWGHPX856;
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -467,14 +474,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/JevJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 75LZ93U5CF;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jevchat.jarvis;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
