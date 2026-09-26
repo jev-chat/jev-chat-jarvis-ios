@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1320, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1320px; height: 2868px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+    #canvas { position: relative; width: 1320px; height: 2868px; overflow: hidden; background: #f2f2f7; }
+    #app { position: absolute; inset: 0; width: 1320px; height: 2868px; }
+    header { position: absolute; inset: 0 0 auto; height: 506px; background: #f2f2f7; }
+    .meta { position: absolute; top: 98px; left: 86px; right: 86px; display: flex; justify-content: space-between; align-items: center; color: #485862; font-size: 29px; font-weight: 700; }
+    #accent { position: absolute; top: 180px; left: 86px; width: 104px; height: 8px; background: #0678bd; }
+    h1 { position: absolute; top: 222px; left: 86px; width: 1148px; margin: 0; color: #15242a; font-size: 80px; font-weight: 760; line-height: 1.09; white-space: pre-line; letter-spacing: 0; }
+    .two-line h1 { top: 210px; font-size: 74px; }
+  </style>
+</head>
+<body>
+  <main id="canvas">
+    <img id="app" alt="">
+    <header>
+      <div class="meta"><span>JEV JARVIS</span><span id="counter"></span></div>
+      <div id="accent"></div>
+      <h1 id="headline"></h1>
+    </header>
+  </main>
+</body>
+</html>

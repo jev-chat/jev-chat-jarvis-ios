@@ -1,0 +1,12 @@
+{
+  "name": "jev-jarvis-app-store-upload",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
