@@ -27,7 +27,14 @@ check("openai v1", JevDraft.chatURL("https://api.deepseek.com/v1", kind: .openai
 check("openai 智谱 v4", JevDraft.chatURL("https://open.bigmodel.cn/api/paas/v4", kind: .openai), "https://open.bigmodel.cn/api/paas/v4/chat/completions")
 check("openai 已带动作段", JevDraft.chatURL("https://x.com/v1/chat/completions", kind: .openai), "https://x.com/v1/chat/completions")
 check("anthropic 主机", JevDraft.chatURL("https://api.anthropic.com", kind: .anthropic), "https://api.anthropic.com/v1/messages")
-check("anthropic 智谱中转", JevDraft.chatURL("https://open.bigmodel.cn/api/anthropic", kind: .anthropic), "https://open.bigmodel.cn/api/anthropic/v1/messages")
+check("anthropic custom path", JevDraft.chatURL("https://open.bigmodel.cn/api/anthropic", kind: .anthropic), "https://open.bigmodel.cn/api/anthropic/v1/messages")
+
+// MARK: 生成层必须由用户配置
+
+let defaultConfig = JevConfig()
+check("generation·no bundled key", defaultConfig.generation.key, "")
+check("generation·default is unconfigured", JevDraft(cfg: defaultConfig).isConfigured ? "configured" : "unconfigured", "unconfigured")
+check("generation·no bundled preset", ProviderPreset.all.contains { $0.id == "builtin" } ? "present" : "absent", "absent")
 
 // MARK: 候选清洗（编号 → 引号 → 风格前缀 → 引号）
 
@@ -56,6 +63,9 @@ check("prompt·话术行", p.contains("「稳如老狗」十年老工程师那�
 check("prompt·无残留占位符", p.contains("{") ? "has-placeholder" : "clean", "clean")
 check("prompt·条数一致", p.components(separatedBy: "请写 2 条").count == 2 ? "ok" : "bad", "ok")
 check("prompt·通用聊天场景", p.hasPrefix("刚收到一条聊天消息") && p.contains("像日常聊天时打字的语气") ? "ok" : "bad", "ok")
+let pEN = buildDraftPrompt(message: "Are you free tomorrow?", intent: "约会议", context: nil,
+                           tone: "稳如老狗", instruction: "Keep it concise", n: 2, language: .english)
+check("prompt·English", pEN.hasPrefix("You just received a chat message") && pEN.contains("Detected intent: Scheduling a meeting") ? "ok" : "bad", "ok")
 
 let p2 = buildDraftPrompt(message: "在吗", intent: nil, context: "王总: 昨天的方案看完了吗",
                           tone: "已读乱回", instruction: "敷衍但不失礼", n: 2)

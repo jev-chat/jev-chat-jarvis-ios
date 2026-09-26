@@ -118,13 +118,15 @@ final class CandidateRow: UIControl {
         self.candidate = candidate
         super.init(frame: .zero)
 
-        let chip = KB.badge(candidate.tone, color: KB.brand)
+        let language = JevStore.loadLanguage()
+        let chip = KB.badge(localizedToneName(candidate.tone, language: language), color: KB.brand)
         chip.font = .systemFont(ofSize: 11, weight: .medium)
 
         let text = KB.label(candidate.text, font: .systemFont(ofSize: 14), lines: 2)
 
         let trailing = KB.label(
-            candidate.prob.map { String(format: "%.0f%%", $0 * 100) } ?? "点按插入",
+            candidate.prob.map { String(format: "%.0f%%", $0 * 100) }
+                ?? jevLocalized(language, zh: "点按插入", en: "Tap to insert"),
             font: .systemFont(ofSize: 11),
             color: KB.secondaryText
         )

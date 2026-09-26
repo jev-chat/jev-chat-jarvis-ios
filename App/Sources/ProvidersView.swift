@@ -11,7 +11,7 @@ struct ProvidersView: View {
                 judgeSection
                 generationSection
             }
-            .navigationTitle("模型")
+            .navigationTitle(jevLocalized(store.language, zh: "模型", en: "Models"))
         }
     }
 
@@ -19,22 +19,24 @@ struct ProvidersView: View {
 
     private var generationSection: some View {
         Section {
-            Picker("预设", selection: $preset) {
+            Picker(jevLocalized(store.language, zh: "预设", en: "Preset"), selection: $preset) {
                 ForEach(ProviderPreset.all) { p in
-                    Text(p.name).tag(p.id)
+                    Text(localizedProviderName(p.id, language: store.language) ?? p.name).tag(p.id)
                 }
             }
             .onChange(of: preset) { id in
                 applyPreset(id)
             }
 
-            Picker("API 形状", selection: $store.config.genKind) {
+            Picker(jevLocalized(store.language, zh: "API 形状", en: "API format"), selection: $store.config.genKind) {
                 ForEach(APIKind.allCases) { k in
-                    Text(k.label).tag(k)
+                    Text(store.language == .english
+                         ? (k == .openai ? "OpenAI-compatible (/chat/completions)" : "Anthropic-compatible (/v1/messages)")
+                         : k.label).tag(k)
                 }
             }
 
-            TextField("服务地址", text: $store.config.genBase)
+            TextField(jevLocalized(store.language, zh: "服务地址", en: "Service URL"), text: $store.config.genBase)
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -42,12 +44,12 @@ struct ProvidersView: View {
 
             KeyField(title: "API Key", text: $store.config.genKey)
 
-            TextField("模型", text: $store.config.genModel)
+            TextField(jevLocalized(store.language, zh: "模型", en: "Model"), text: $store.config.genModel)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .font(.footnote)
 
-            TextField("额外字段 JSON（可选）", text: $store.config.genExtraJSON, axis: .vertical)
+            TextField(jevLocalized(store.language, zh: "额外字段 JSON（可选）", en: "Extra JSON fields (optional)"), text: $store.config.genExtraJSON, axis: .vertical)
                 .font(.footnote.monospaced())
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -58,20 +60,24 @@ struct ProvidersView: View {
             Text(genStatusLine)
                 .font(.caption2).foregroundStyle(.secondary)
         } header: {
-            Text("生成层（候选回复，必配）")
+            Text(jevLocalized(store.language, zh: "生成层（候选回复，必配）", en: "Generation (required for suggestions)"))
         } footer: {
-            Text("不填 Key 时自动走内置中转（\(JevBuiltin.baseURL) · \(JevBuiltin.model)），填了自己的 Key 就以你的为准。别用思考型模型（思考会占满额度导致 0 条候选）。地址带不带 /v1 都能拼对；端点需要额外字段关思考时填上面那行，默认已带 enable_thinking:false。")
+            Text(jevLocalized(store.language, zh: "必须填写你自己的 API Key；本项目不提供生成服务或中转。别用思考型模型（思考会占满额度导致 0 条候选）。地址带不带 /v1 都能拼对；端点需要额外字段关闭思考时，可在上面填写 JSON。", en: "Enter your own API key. This project does not provide a generation service or relay. Avoid reasoning models that spend the whole budget. URLs work with or without /v1; use the extra JSON field if your endpoint needs reasoning disabled."))
         }
     }
 
-    /// 显示实际生效的那一组，而不是输入框里的值——没填 key 时用的是内置中转。
     private var genStatusLine: String {
         let g = store.config.generation
-        let key = g.isBuiltin ? "内置中转（免填）" : JevStore.masked(g.key)
-        return "当前：\(g.kind.rawValue) · \(g.model) · Key \(key)"
+        return jevLocalized(store.language,
+                            zh: "当前：\(g.kind.rawValue) · \(g.model) · Key \(maskedKey(g.key))",
+                            en: "Current: \(g.kind.rawValue) · \(g.model) · Key \(maskedKey(g.key))")
     }
 
-    @State private var preset: String = "builtin"
+    private func maskedKey(_ key: String) -> String {
+        key.isEmpty && store.language == .english ? "(not configured)" : JevStore.masked(key)
+    }
+
+    @State private var preset: String = "zhipu"
 
     private func applyPreset(_ id: String) {
         guard let p = ProviderPreset.all.first(where: { $0.id == id }), p.id != "custom" else { return }
@@ -86,9 +92,9 @@ struct ProvidersView: View {
 
     private var judgeSection: some View {
         Section {
-            Picker("预设", selection: $judgePreset) {
+            Picker(jevLocalized(store.language, zh: "预设", en: "Preset"), selection: $judgePreset) {
                 ForEach(JudgePreset.all) { p in
-                    Text(p.name).tag(p.id)
+                    Text(localizedProviderName(p.id, language: store.language) ?? p.name).tag(p.id)
                 }
             }
             .onChange(of: judgePreset) { id in
@@ -98,25 +104,25 @@ struct ProvidersView: View {
                 }
             }
 
-            TextField("服务地址", text: $store.config.judgeBase)
+            TextField(jevLocalized(store.language, zh: "服务地址", en: "Service URL"), text: $store.config.judgeBase)
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .font(.footnote)
             KeyField(title: "API Key", text: $store.config.judgeKey)
-            TextField("模型", text: $store.config.judgeModel)
+            TextField(jevLocalized(store.language, zh: "模型", en: "Model"), text: $store.config.judgeModel)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .font(.footnote)
 
             TestConnectionButton(kind: .judge)
 
-            Text("当前：\(store.config.judgeModel) · Key \(JevStore.masked(store.config.judgeKey))")
+            Text(jevLocalized(store.language, zh: "当前：\(store.config.judgeModel) · Key \(maskedKey(store.config.judgeKey))", en: "Current: \(store.config.judgeModel) · Key \(maskedKey(store.config.judgeKey))"))
                 .font(.caption2).foregroundStyle(.secondary)
         } header: {
-            Text("判断层（Jev · 意图 + 风险 + 排序）")
+            Text(jevLocalized(store.language, zh: "判断层（Jev · 意图 + 风险 + 排序）", en: "Judge (Jev · intent + risk + ranking)"))
         } footer: {
-            Text("核心判断引擎：一次调用出 8 类意图概率和 0–9 风险分布，并给候选排序。没填 key 时键盘退化为「盲起草」（只出候选）。网关地址填到动作段或带 /v1 都能拼对；key 与生成层可以不是同一家。")
+            Text(jevLocalized(store.language, zh: "核心判断引擎：一次调用出 8 类意图概率和 0–9 风险分布，并给候选排序。没填 key 时键盘退化为「盲起草」（只出候选）。网关地址填到动作段或带 /v1 都能拼对；key 与生成层可以不是同一家。", en: "The judge returns probabilities for 8 intents, a 0–9 risk score, and candidate ranking. Without a key, the keyboard falls back to drafting only. The judge and generation providers can differ."))
         }
     }
 }
@@ -174,9 +180,9 @@ private struct TestConnectionButton: View {
                 test()
             } label: {
                 if running {
-                    HStack { ProgressView().controlSize(.small); Text("测试中…") }
+                    HStack { ProgressView().controlSize(.small); Text(jevLocalized(store.language, zh: "测试中…", en: "Testing…")) }
                 } else {
-                    Label("测试连接", systemImage: "bolt.horizontal")
+                    Label(jevLocalized(store.language, zh: "测试连接", en: "Test connection"), systemImage: "bolt.horizontal")
                 }
             }
             .disabled(running)

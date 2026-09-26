@@ -9,7 +9,7 @@ import Foundation
 final class JevDraft {
     private let cfg: JevConfig
 
-    /// 采样温度。对齐 macOS 版 `src/generate.py` 的 0.9：内置中转和部分渠道把范围夹在 [0,1]，
+    /// 采样温度。对齐 macOS 版 `src/generate.py` 的 0.9：部分渠道把范围夹在 [0,1]，
     /// 发 1.2 会被上游直接拒（400 temperature参数非法）。
     private static let temperature: Double = 0.9
 

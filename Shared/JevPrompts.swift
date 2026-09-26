@@ -122,16 +122,43 @@ let PROMPT_ONE = """
 - 不要写出语气名称（不要写「{tone}：」这类前缀），直接从回复内容开始
 """
 
+let PROMPT_ONE_EN = """
+You just received a chat message and need to reply.
+
+{context_line}Message: “{message}”
+{intent_line}
+Write {n} reply candidates in the same tone below, with different levels of boldness:
+“{tone}” {instruction}
+
+Hard requirements:
+- The first reply should be safe to send; the second should use the tone more strongly and may be more playful
+- Keep each reply under 30 words, like everyday chat. No formal filler or explanations
+- Output only {n} lines, one reply per line, with no numbering, quotes, or prefixes
+- Do not write the tone name (do not add a prefix such as “{tone}:”); start with the reply itself
+"""
+
 func buildDraftPrompt(message: String, intent: String?, context: String?,
-                      tone: String, instruction: String, n: Int) -> String {
-    let contextLine = context != nil && !(context ?? "").isEmpty ? "最近的对话：\n\(context!)\n\n" : ""
-    let intentLine = intent != nil && !(intent ?? "").isEmpty ? "判断出的意图：\(intent!)\n" : ""
-    return PROMPT_ONE
+                      tone: String, instruction: String, n: Int,
+                      language: JevLanguage? = nil) -> String {
+    let selectedLanguage = language ?? JevStore.loadLanguage()
+    let contextLine: String
+    let intentLine: String
+    if selectedLanguage == .english {
+        contextLine = context != nil && !(context ?? "").isEmpty ? "Recent conversation:\n\(context!)\n\n" : ""
+        intentLine = intent != nil && !(intent ?? "").isEmpty ? "Detected intent: \(localizedIntent(intent!, language: .english))\n" : ""
+    } else {
+        contextLine = context != nil && !(context ?? "").isEmpty ? "最近的对话：\n\(context!)\n\n" : ""
+        intentLine = intent != nil && !(intent ?? "").isEmpty ? "判断出的意图：\(intent!)\n" : ""
+    }
+    let template = selectedLanguage == .english ? PROMPT_ONE_EN : PROMPT_ONE
+    let promptInstruction = selectedLanguage == .english && BUILTIN_TONES[tone] == instruction
+        ? toneEnglishDescription(tone) : instruction
+    return template
         .replacingOccurrences(of: "{context_line}", with: contextLine)
         .replacingOccurrences(of: "{message}", with: message)
         .replacingOccurrences(of: "{intent_line}", with: intentLine)
         .replacingOccurrences(of: "{tone}", with: tone)
-        .replacingOccurrences(of: "{instruction}", with: instruction)
+        .replacingOccurrences(of: "{instruction}", with: promptInstruction)
         .replacingOccurrences(of: "{n}", with: String(n))
 }
 

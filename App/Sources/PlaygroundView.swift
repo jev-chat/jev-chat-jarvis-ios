@@ -19,23 +19,23 @@ struct PlaygroundView: View {
                         run()
                     } label: {
                         if running {
-                            HStack { ProgressView().controlSize(.small); Text(stage.isEmpty ? "分析中…" : stage) }
+                            HStack { ProgressView().controlSize(.small); Text(stage.isEmpty ? jevLocalized(store.language, zh: "分析中…", en: "Analyzing…") : stage) }
                         } else {
-                            Label("运行分析", systemImage: "play.fill")
+                            Label(jevLocalized(store.language, zh: "运行分析", en: "Run analysis"), systemImage: "play.fill")
                         }
                     }
                     .disabled(running || message.trimmingCharacters(in: .whitespaces).isEmpty)
                 } header: {
-                    Text("要回的消息")
+                    Text(jevLocalized(store.language, zh: "要回的消息", en: "Message to reply to"))
                 } footer: {
-                    Text("和键盘走同一条链路：判断 → 每话术起草 → 排序。这里能通，键盘上就能通。")
+                    Text(jevLocalized(store.language, zh: "和键盘走同一条链路：判断 → 每话术起草 → 排序。这里能通，键盘上就能通。", en: "This uses the same pipeline as the keyboard: judge → draft each tone → rank."))
                 }
 
                 if let a = analysis {
                     AnalysisResultView(analysis: a)
                 }
             }
-            .navigationTitle("试一试")
+            .navigationTitle(jevLocalized(store.language, zh: "试一试", en: "Try it"))
         }
     }
 
@@ -44,14 +44,15 @@ struct PlaygroundView: View {
         analysis = nil
         let pipeline = JevPipeline(cfg: store.config)
         let msg = message
+        let language = store.language
         Task {
             let result = await pipeline.analyze(message: msg, context: nil) { s in
                 Task { @MainActor in
                     switch s {
-                    case .judging: stage = "判断中…"
-                    case .drafting(let d, let t): stage = "生成中 \(d)/\(t)…"
-                    case .ranking: stage = "排序中…"
-                    case .done: stage = "完成"
+                    case .judging: stage = jevLocalized(language, zh: "判断中…", en: "Judging…")
+                    case .drafting(let d, let t): stage = jevLocalized(language, zh: "生成中 \(d)/\(t)…", en: "Drafting \(d)/\(t)…")
+                    case .ranking: stage = jevLocalized(language, zh: "排序中…", en: "Ranking…")
+                    case .done: stage = jevLocalized(language, zh: "完成", en: "Done")
                     }
                 }
             }
@@ -65,6 +66,7 @@ struct PlaygroundView: View {
 
 /// 结果卡：判断头 + 候选列表（点复制）。
 struct AnalysisResultView: View {
+    @EnvironmentObject private var store: ConfigStore
     let analysis: Analysis
 
     var body: some View {
@@ -72,11 +74,11 @@ struct AnalysisResultView: View {
             if let jr = analysis.judge {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 8) {
-                        Text(jr.intent)
+                        Text(localizedIntent(jr.intent, language: store.language))
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 8).padding(.vertical, 3)
                             .background(Color.accentColor.opacity(0.15), in: Capsule())
-                        Text(String(format: "风险 %.0f/9", jr.risk))
+                            Text(jevLocalized(store.language, zh: String(format: "风险 %.0f/9", jr.risk), en: String(format: "Risk %.0f/9", jr.risk)))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(riskColor(jr.risk))
                             .padding(.horizontal, 8).padding(.vertical, 3)
@@ -85,9 +87,9 @@ struct AnalysisResultView: View {
                         Text(String(format: "%.0f%% · %.1fs", jr.confidence * 100, analysis.elapsed))
                             .font(.caption2).foregroundStyle(.secondary)
                     }
-                    Text(jr.riskLevelText).font(.caption).foregroundStyle(riskColor(jr.risk))
+                    Text(localizedRiskLabel(jr.risk, language: store.language)).font(.caption).foregroundStyle(riskColor(jr.risk))
                     if !jr.actions.isEmpty {
-                        Text("建议：" + jr.actions.joined(separator: " · "))
+                        Text(jevLocalized(store.language, zh: "建议：", en: "Next: ") + localizedActions(jr.actions, language: store.language).joined(separator: " · "))
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -96,7 +98,7 @@ struct AnalysisResultView: View {
 
             ForEach(analysis.candidates) { c in
                 HStack(alignment: .top) {
-                    Text(c.tone)
+                    Text(localizedToneName(c.tone, language: store.language))
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.tint)
                         .padding(.horizontal, 6).padding(.vertical, 2)
@@ -125,7 +127,7 @@ struct AnalysisResultView: View {
                 Text(fatal).font(.caption).foregroundStyle(.red)
             }
         } header: {
-            Text("结果")
+            Text(jevLocalized(store.language, zh: "结果", en: "Results"))
         }
     }
 

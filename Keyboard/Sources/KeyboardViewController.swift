@@ -11,6 +11,12 @@ import UIKit
 /// 这是 iOS 键盘扩展的唯一开关，没有别的权限可申请。
 final class KeyboardViewController: UIInputViewController {
 
+    private var language: JevLanguage { JevStore.loadLanguage() }
+
+    private func L(_ zh: String, _ en: String) -> String {
+        jevLocalized(language, zh: zh, en: en)
+    }
+
     private enum Mode { case gate, idle, tones, loading, result, error }
 
     private var mode: Mode = .idle
@@ -72,6 +78,9 @@ final class KeyboardViewController: UIInputViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        statusLabel.text = hasFullAccess ? L("Jev · 已连接", "Jev · Connected")
+            : L("Jev · 需要完全访问", "Jev · Full Access required")
+        render()
         // 回写状态：主 App「开始」页据此显示键盘是否已启用、是否给了完全访问
         JevStore.saveKeyboardStatus(KeyboardStatus(lastSeen: Date(), hasFullAccess: hasFullAccess))
         prewarm()
@@ -82,7 +91,7 @@ final class KeyboardViewController: UIInputViewController {
     }
 
     /// 预热生成层连接。实测同一条起草请求，第二次能从 ~1.9 秒降到 ~0.5 秒——
-    /// 连接和中转上游都要热身。键盘一出现就用一个不消耗额度的 `GET /models` 把连接建起来，
+    /// 连接和模型服务都要热身。键盘一出现就用一个不消耗额度的 `GET /models` 把连接建起来，
     /// 结果直接丢掉（失败也无所谓，真分析时该走的路径照走）。
     private func prewarm() {
         guard hasFullAccess else { return }
@@ -116,7 +125,7 @@ final class KeyboardViewController: UIInputViewController {
             dot.heightAnchor.constraint(equalToConstant: 8),
         ])
 
-        statusLabel = KB.label(hasFullAccess ? "Jev · 已连接" : "Jev · 需要完全访问",
+        statusLabel = KB.label(hasFullAccess ? L("Jev · 已连接", "Jev · Connected") : L("Jev · 需要完全访问", "Jev · Full Access required"),
                                font: .systemFont(ofSize: 12, weight: .medium), color: KB.secondaryText)
 
         let title = UIStackView(arrangedSubviews: [dot, statusLabel])
@@ -317,15 +326,10 @@ final class KeyboardViewController: UIInputViewController {
 
     private func gateView() -> UIView {
         let card = KB.cardView()
-        let title = KB.label("需要「允许完全访问」", font: .systemFont(ofSize: 16, weight: .bold),
+        let title = KB.label(L("需要「允许完全访问」", "Full Access required"), font: .systemFont(ofSize: 16, weight: .bold),
                              color: .systemRed)
         let steps = KB.label(
-            "Jev 键盘要联网调用模型、读取剪贴板，这两项都要求完全访问：\n\n"
-            + "① 打开系统「设置」→「通用」→「键盘」→「键盘」\n"
-            + "② 点「添加新键盘」→ 选「Jev 键盘」\n"
-            + "③ 点「Jev 键盘」→ 打开「允许完全访问」\n\n"
-            + "完全访问意味着键盘能传输按键与剪贴板内容——本项目开源、只用你自己填的 API Key，"
-            + "不用时可以在同页一键移除。",
+            L("Jev 键盘要联网调用模型、读取剪贴板，这两项都要求完全访问：\n\n① 打开系统「设置」→「通用」→「键盘」→「键盘」\n② 点「添加新键盘」→ 选「Jev 键盘」\n③ 点「Jev 键盘」→ 打开「允许完全访问」\n\n完全访问意味着键盘能传输按键与剪贴板内容——本项目开源、只用你自己填的 API Key，不用时可以在同页一键移除。", "Jev needs Full Access to call the model and read the clipboard:\n\n① Open Settings → General → Keyboard → Keyboards\n② Tap Add New Keyboard → Jev Keyboard\n③ Select Jev Keyboard → turn on Full Access\n\nFull Access lets the keyboard transmit keystrokes and clipboard content. The project is open source and uses only the API key you provide; you can remove it anytime."),
             font: .systemFont(ofSize: 13), color: KB.primaryText, lines: 0)
         let vstack = UIStackView(arrangedSubviews: [title, steps])
         vstack.axis = .vertical
@@ -350,14 +354,14 @@ final class KeyboardViewController: UIInputViewController {
         let cfg = JevStore.loadConfig()
 
         let guide = KB.label(
-            "长按对方消息 → 复制，再点下面的按钮",
+            L("长按对方消息 → 复制，再点下面的按钮", "Long-press the message → Copy, then tap a button below"),
             font: .systemFont(ofSize: 12), color: KB.secondaryText)
 
-        let clipBtn = KB.button("分析剪贴板", icon: "doc.on.clipboard", primary: true,
+        let clipBtn = KB.button(L("分析剪贴板", "Analyze Clipboard"), icon: "doc.on.clipboard", primary: true,
                                 font: .systemFont(ofSize: 14, weight: .semibold))
         clipBtn.addTarget(self, action: #selector(analyzeClipboard), for: .touchUpInside)
 
-        let inputBtn = KB.button("AI 分析输入框文字", icon: "text.cursor",
+        let inputBtn = KB.button(L("AI 分析输入框文字", "Analyze Input"), icon: "text.cursor",
                                  font: .systemFont(ofSize: 14, weight: .semibold))
         inputBtn.addTarget(self, action: #selector(analyzeInputField), for: .touchUpInside)
 
@@ -371,8 +375,8 @@ final class KeyboardViewController: UIInputViewController {
         // 话术：点进去直接在键盘上选（写回共享配置，App 的「话术」页看到的是同一份）
         let tonesBtn = KB.button(
             cfg.activeSlots.isEmpty
-                ? "话术：都没选（点这里选）"
-                : "话术：" + cfg.activeSlots.joined(separator: " · "),
+                ? L("话术：都没选（点这里选）", "Tones: none selected")
+                : L("话术：", "Tones: ") + cfg.activeSlots.map { localizedToneName($0, language: language) }.joined(separator: " · "),
             icon: "theatermasks")
         tonesBtn.heightAnchor.constraint(equalToConstant: 34).isActive = true
         tonesBtn.addTarget(self, action: #selector(openTonePicker), for: .touchUpInside)
@@ -383,10 +387,10 @@ final class KeyboardViewController: UIInputViewController {
         let vstack = UIStackView(arrangedSubviews: [guide, btnRow, tonesBtn])
         vstack.axis = .vertical
         vstack.spacing = 8
-        if !cfg.generation.key.isEmpty {
-            // 配置正常（含内置中转兜底）时不占行
+        if JevDraft(cfg: cfg).isConfigured {
+            // 配置完整时不占行
         } else {
-            let warn = KB.label("⚠️ 还没配置生成层：打开 Jev Jarvis App →「模型」页填 API Key",
+            let warn = KB.label(L("⚠️ 还没配置生成层：打开 Jev Jarvis App →「模型」页填 API Key", "⚠️ Generation is not configured: open Jev Jarvis → Models and add an API key"),
                                 font: .systemFont(ofSize: 12), color: .systemOrange, lines: 0)
             vstack.addArrangedSubview(warn)
         }
@@ -405,14 +409,14 @@ final class KeyboardViewController: UIInputViewController {
         let names = orderedToneNames(custom: cfg.customTones)
         let active = cfg.activeSlots
 
-        let title = KB.label("选话术（最多 \(MAX_SLOTS) 个 · 每个每次出 2 条）",
+        let title = KB.label(L("选话术（最多 \(MAX_SLOTS) 个 · 每个每次出 2 条）", "Choose tones (up to \(MAX_SLOTS) · 2 suggestions each)"),
                              font: .systemFont(ofSize: 12), color: KB.secondaryText, lines: 0)
         var blocks: [UIView] = [title]
 
         // 每行 3 个等宽格子：话术名长短不一，等宽比按内容排更好点、也更整齐
         var row: [UIButton] = []
         for name in names {
-            let btn = KB.button(name, primary: active.contains(name),
+            let btn = KB.button(localizedToneName(name, language: language), primary: active.contains(name),
                                 font: .systemFont(ofSize: 13, weight: .medium))
             btn.heightAnchor.constraint(equalToConstant: 34).isActive = true
             btn.accessibilityIdentifier = name
@@ -430,7 +434,7 @@ final class KeyboardViewController: UIInputViewController {
             blocks.append(gridRow(cells))
         }
 
-        let done = KB.button("好了", icon: "checkmark", primary: true)
+        let done = KB.button(L("好了", "Done"), icon: "checkmark", primary: true)
         done.heightAnchor.constraint(equalToConstant: 36).isActive = true
         done.addTarget(self, action: #selector(backToIdle), for: .touchUpInside)
         blocks.append(done)
@@ -472,7 +476,7 @@ final class KeyboardViewController: UIInputViewController {
     private func loadingView() -> UIView {
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.startAnimating()
-        stageLabel = KB.label("分析中…", font: .systemFont(ofSize: 14), color: KB.secondaryText)
+        stageLabel = KB.label(L("分析中…", "Analyzing…"), font: .systemFont(ofSize: 14), color: KB.secondaryText)
         let hstack = UIStackView(arrangedSubviews: [spinner, stageLabel])
         hstack.axis = .horizontal
         hstack.spacing = 10
@@ -502,12 +506,12 @@ final class KeyboardViewController: UIInputViewController {
         var headerItems: [UIView] = []
         if let jr = a.judge {
             // 风险等级文案跟徽章同一行——它单独占一行太浪费高度（键盘面板寸土寸金）
-            let riskText = KB.label(jr.riskLevelText, font: .systemFont(ofSize: 12),
+            let riskText = KB.label(localizedRiskLabel(jr.risk, language: language), font: .systemFont(ofSize: 12),
                                     color: KB.riskColor(jr.risk), lines: 1)
             riskText.setContentHuggingPriority(.required, for: .horizontal)
             let chipRow = UIStackView(arrangedSubviews: [
-                KB.badge(jr.intent, color: KB.brand),
-                KB.badge(String(format: "风险 %.0f/9", jr.risk), color: KB.riskColor(jr.risk)),
+                KB.badge(localizedIntent(jr.intent, language: language), color: KB.brand),
+                KB.badge(L(String(format: "风险 %.0f/9", jr.risk), String(format: "Risk %.0f/9", jr.risk)), color: KB.riskColor(jr.risk)),
                 riskText,
                 UIView(),   // 占位：吃掉余量，徽章和文案各自按内容 hug
             ])
@@ -515,11 +519,11 @@ final class KeyboardViewController: UIInputViewController {
             chipRow.spacing = 8
             headerItems.append(chipRow)
             if !jr.actions.isEmpty {
-                headerItems.append(KB.label("建议：" + jr.actions.joined(separator: " · "),
+                headerItems.append(KB.label(L("建议：", "Next: ") + localizedActions(jr.actions, language: language).joined(separator: " · "),
                                             font: .systemFont(ofSize: 12), color: KB.secondaryText, lines: 0))
             }
         } else {
-            headerItems.append(KB.label("未配置判断层，直接生成（可在 App 里开启）",
+            headerItems.append(KB.label(L("未配置判断层，直接生成（可在 App 里开启）", "Judge not configured; drafting directly (enable it in the app)"),
                                         font: .systemFont(ofSize: 12), color: KB.secondaryText))
         }
         let quoted = KB.label("「" + (a.message.count > 40 ? String(a.message.prefix(40)) + "…" : a.message) + "」",
@@ -542,8 +546,8 @@ final class KeyboardViewController: UIInputViewController {
 
         // 时间脚注（先建好：插入/发送的反馈要临时改它）
         let footer = KB.label(a.rankingPending
-                                ? "候选已出 · 排序中…（现在就能点）"
-                                : String(format: "%.1f 秒 · 点候选插入，点「发送」发出", a.elapsed),
+                                ? L("候选已出 · 排序中…（现在就能点）", "Suggestions ready · ranking… (you can tap now)")
+                                : L(String(format: "%.1f 秒 · 点候选插入，点「发送」发出", a.elapsed), String(format: "%.1f s · tap a suggestion to insert, then Send", a.elapsed)),
                               font: .systemFont(ofSize: 10), color: KB.secondaryText)
         flashTarget = footer
 
@@ -552,7 +556,7 @@ final class KeyboardViewController: UIInputViewController {
         list.axis = .vertical
         list.spacing = 6
         if a.candidates.isEmpty {
-            list.addArrangedSubview(KB.label("这次没出候选，点「换一批」再试一次",
+            list.addArrangedSubview(KB.label(L("这次没出候选，点「换一批」再试一次", "No suggestions this time. Tap Regenerate to try again."),
                                              font: .systemFont(ofSize: 13),
                                              color: KB.secondaryText, lines: 0))
         }
@@ -568,7 +572,7 @@ final class KeyboardViewController: UIInputViewController {
                 let ctx = self.textDocumentProxy.documentContextBeforeInput ?? "<拿不到>"
                 JevStore.diag("插入后输入框尾部=「\(ctx.suffix(24))」")
 #endif
-                self.flashFooter("已插入 · 点「发送」发出", color: KB.riskColor(0))
+                self.flashFooter(self.L("已插入 · 点「发送」发出", "Inserted · tap Send to submit"), color: KB.riskColor(0))
             }
             list.addArrangedSubview(row)
         }
@@ -592,12 +596,12 @@ final class KeyboardViewController: UIInputViewController {
         outer.addArrangedSubview(scroll)
 
         // 底部操作：发送挪到右下角，左边留给换一批/返回
-        let send = KB.button("发送", icon: "paperplane.fill", primary: true)
+        let send = KB.button(L("发送", "Send"), icon: "paperplane.fill", primary: true)
         send.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         send.widthAnchor.constraint(equalToConstant: 96).isActive = true
-        let regen = KB.button("换一批", icon: "arrow.clockwise")
+        let regen = KB.button(L("换一批", "Regenerate"), icon: "arrow.clockwise")
         regen.addTarget(self, action: #selector(regenerate), for: .touchUpInside)
-        let close = KB.button("返回", icon: "chevron.left")
+        let close = KB.button(L("返回", "Back"), icon: "chevron.left")
         close.addTarget(self, action: #selector(backToIdle), for: .touchUpInside)
         let actions = UIStackView(arrangedSubviews: [regen, close, UIView(), send])
         actions.axis = .horizontal
@@ -638,11 +642,11 @@ final class KeyboardViewController: UIInputViewController {
             guard let self else { return }
             let after = self.textDocumentProxy.documentContextBeforeInput ?? ""
             if before.isEmpty && after.isEmpty {
-                self.flashFooter("输入框是空的：先点一条候选", color: .systemOrange)
+                self.flashFooter(self.L("输入框是空的：先点一条候选", "The input is empty: tap a suggestion first"), color: .systemOrange)
             } else if after.isEmpty {
-                self.flashFooter("已发送 ✓", color: KB.riskColor(0))
+                self.flashFooter(self.L("已发送 ✓", "Sent ✓"), color: KB.riskColor(0))
             } else {
-                self.flashFooter("这个 App 不吃键盘换行，请点它的发送按钮", color: .systemOrange)
+                self.flashFooter(self.L("这个 App 不吃键盘换行，请点它的发送按钮", "This app does not send on Return; tap its Send button"), color: .systemOrange)
             }
         }
     }
@@ -651,11 +655,11 @@ final class KeyboardViewController: UIInputViewController {
 
     private func errorView() -> UIView {
         let card = KB.cardView()
-        let title = KB.label("出错了", font: .systemFont(ofSize: 15, weight: .bold), color: .systemRed)
+        let title = KB.label(L("出错了", "Something went wrong"), font: .systemFont(ofSize: 15, weight: .bold), color: .systemRed)
         let body = KB.label(errorText, font: .systemFont(ofSize: 13), color: KB.primaryText, lines: 0)
-        let retry = KB.button("重试", icon: "arrow.clockwise")
+        let retry = KB.button(L("重试", "Retry"), icon: "arrow.clockwise")
         retry.addTarget(self, action: #selector(regenerate), for: .touchUpInside)
-        let close = KB.button("返回", icon: "chevron.left")
+        let close = KB.button(L("返回", "Back"), icon: "chevron.left")
         close.addTarget(self, action: #selector(backToIdle), for: .touchUpInside)
         let btns = UIStackView(arrangedSubviews: [retry, close])
         btns.axis = .horizontal
@@ -684,7 +688,7 @@ final class KeyboardViewController: UIInputViewController {
         guard hasFullAccess else { setMode(.gate); return }
         guard let text = UIPasteboard.general.string?
             .trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
-            errorText = "剪贴板是空的。先在聊天里长按要回的消息 →「复制」，再回来点分析。"
+            errorText = L("剪贴板是空的。先在聊天里长按要回的消息 →「复制」，再回来点分析。", "The clipboard is empty. Long-press a message in your chat, copy it, then tap Analyze.")
             setMode(.error)
             return
         }
@@ -697,7 +701,7 @@ final class KeyboardViewController: UIInputViewController {
         let after = textDocumentProxy.documentContextAfterInput ?? ""
         let text = (before + after).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
-            errorText = "输入框里没有文字。这个按钮分析的是当前输入框里已输入的内容（比如你打了一半拿不准的话）。"
+            errorText = L("输入框里没有文字。这个按钮分析的是当前输入框里已输入的内容（比如你打了一半拿不准的话）。", "The input is empty. This button analyzes text already typed in the field.")
             setMode(.error)
             return
         }
@@ -710,7 +714,7 @@ final class KeyboardViewController: UIInputViewController {
     private func run(message: String) {
         lastMessage = message
         setMode(.loading)
-        stageLabel.text = "判断中…"
+        stageLabel.text = L("判断中…", "Judging…")
         let pipeline = JevPipeline(cfg: JevStore.loadConfig())
 
         Task { @MainActor [weak self] in
@@ -719,11 +723,11 @@ final class KeyboardViewController: UIInputViewController {
                 onStage: { [weak self] stage in
                     Task { @MainActor in
                         switch stage {
-                        case .judging: self?.stageLabel.text = "判断中…"
+                        case .judging: self?.stageLabel.text = self?.L("判断中…", "Judging…")
                         case .drafting(let done, let total):
-                            self?.stageLabel.text = "生成中 \(done)/\(total)…"
-                        case .ranking: self?.stageLabel.text = "排序中…"
-                        case .done: self?.stageLabel.text = "完成"
+                            self?.stageLabel.text = self?.L("生成中 \(done)/\(total)…", "Drafting \(done)/\(total)…")
+                        case .ranking: self?.stageLabel.text = self?.L("排序中…", "Ranking…")
+                        case .done: self?.stageLabel.text = self?.L("完成", "Done")
                         }
                     }
                 },

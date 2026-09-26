@@ -6,9 +6,13 @@ final class ConfigStore: ObservableObject {
     @Published var config: JevConfig {
         didSet { JevStore.saveConfig(config) }
     }
+    @Published var language: JevLanguage {
+        didSet { JevStore.saveLanguage(language) }
+    }
 
     init() {
         config = JevStore.loadConfig()
+        language = JevStore.loadLanguage()
     }
 
     /// 键盘那边也能改共享配置（话术槽位就能直接在键盘上选），回到前台时把外部改动收进来——
@@ -16,6 +20,8 @@ final class ConfigStore: ObservableObject {
     func reloadIfChanged() {
         let fresh = JevStore.loadConfig()
         if fresh != config { config = fresh }
+        let freshLanguage = JevStore.loadLanguage()
+        if freshLanguage != language { language = freshLanguage }
     }
 
     var toneCatalog: [String: String] { allTones(custom: config.customTones) }
@@ -30,13 +36,13 @@ struct JevJarvisApp: App {
         WindowGroup {
             TabView {
                 SetupView()
-                    .tabItem { Label("开始", systemImage: "keyboard") }
+                    .tabItem { Label(jevLocalized(store.language, zh: "开始", en: "Home"), systemImage: "keyboard") }
                 ProvidersView()
-                    .tabItem { Label("模型", systemImage: "brain.head.profile") }
+                    .tabItem { Label(jevLocalized(store.language, zh: "模型", en: "Models"), systemImage: "brain.head.profile") }
                 TonesView()
-                    .tabItem { Label("话术", systemImage: "theatermasks") }
+                    .tabItem { Label(jevLocalized(store.language, zh: "话术", en: "Tones"), systemImage: "theatermasks") }
                 PlaygroundView()
-                    .tabItem { Label("试一试", systemImage: "flask") }
+                    .tabItem { Label(jevLocalized(store.language, zh: "试一试", en: "Try it"), systemImage: "flask") }
             }
             .environmentObject(store)
         }

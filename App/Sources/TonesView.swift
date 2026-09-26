@@ -12,7 +12,7 @@ struct TonesView: View {
                 customSection
                 previewSection
             }
-            .navigationTitle("话术")
+            .navigationTitle(jevLocalized(store.language, zh: "话术", en: "Tones"))
             .sheet(isPresented: $showAdd) { AddToneView() }
         }
     }
@@ -31,14 +31,14 @@ struct TonesView: View {
     private var slotsSection: some View {
         Section {
             ForEach(0..<MAX_SLOTS, id: \.self) { i in
-                Picker("槽位 \(i + 1)", selection: slotBinding(i)) {
-                    ForEach(slotOptions, id: \.self) { Text($0).tag($0) }
+                Picker(jevLocalized(store.language, zh: "槽位 \(i + 1)", en: "Slot \(i + 1)"), selection: slotBinding(i)) {
+                    ForEach(slotOptions, id: \.self) { Text(localizedToneName($0, language: store.language)).tag($0) }
                 }
             }
         } header: {
-            Text("槽位（每个话术每次出 2 条）")
+            Text(jevLocalized(store.language, zh: "槽位（每个话术每次出 2 条）", en: "Slots (2 suggestions per tone)"))
         } footer: {
-            Text("「\(NONE_LABEL)」= 该槽关闭。键盘上候选按槽位顺序展示，最多 \(MAX_SLOTS) 槽 × 2 条。")
+            Text(jevLocalized(store.language, zh: "「\(NONE_LABEL)」= 该槽关闭。键盘上候选按槽位顺序展示，最多 \(MAX_SLOTS) 槽 × 2 条。", en: "\"Off\" disables a slot. Suggestions follow slot order, up to \(MAX_SLOTS) slots × 2."))
         }
     }
 
@@ -57,7 +57,7 @@ struct TonesView: View {
         Section {
             ForEach(store.config.customTones.keys.sorted(), id: \.self) { name in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(name).font(.subheadline.weight(.medium))
+                    Text(localizedToneName(name, language: store.language)).font(.subheadline.weight(.medium))
                     Text(store.config.customTones[name] ?? "")
                         .font(.caption).foregroundStyle(.secondary)
                 }
@@ -71,21 +71,22 @@ struct TonesView: View {
             Button {
                 showAdd = true
             } label: {
-                Label("添加自定义话术", systemImage: "plus")
+                Label(jevLocalized(store.language, zh: "添加自定义话术", en: "Add custom tone"), systemImage: "plus")
             }
         } header: {
-            Text("自定义话术")
+            Text(jevLocalized(store.language, zh: "自定义话术", en: "Custom tones"))
         } footer: {
-            Text("说明写清「什么语气 + 别变成什么」最管用（同 macOS 版 JEV_TONES 的建议）。同名覆盖内置。")
+            Text(jevLocalized(store.language, zh: "说明写清「什么语气 + 别变成什么」最管用（同 macOS 版 JEV_TONES 的建议）。同名覆盖内置。", en: "Describe the tone and what to avoid. A custom tone with the same name overrides a built-in one."))
         }
     }
 
     private var previewSection: some View {
-        Section("内置话术预览") {
+        Section(jevLocalized(store.language, zh: "内置话术预览", en: "Built-in tone preview")) {
             ForEach(Array(BUILTIN_TONES.keys.enumerated()), id: \.offset) { _, name in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(name).font(.subheadline.weight(.medium))
-                    Text(BUILTIN_TONES[name] ?? "").font(.caption).foregroundStyle(.secondary)
+                    Text(localizedToneName(name, language: store.language)).font(.subheadline.weight(.medium))
+                    Text(store.language == .english ? toneEnglishDescription(name) : (BUILTIN_TONES[name] ?? ""))
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -101,15 +102,15 @@ private struct AddToneView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("名字（下拉里显示的）", text: $name)
-                TextField("说明（什么语气 + 别变成什么）", text: $desc, axis: .vertical)
+                TextField(jevLocalized(store.language, zh: "名字（下拉里显示的）", en: "Name (shown in pickers)"), text: $name)
+                TextField(jevLocalized(store.language, zh: "说明（什么语气 + 别变成什么）", en: "Description (tone + what to avoid)"), text: $desc, axis: .vertical)
                     .lineLimit(3...6)
             }
-            .navigationTitle("自定义话术")
+            .navigationTitle(jevLocalized(store.language, zh: "自定义话术", en: "Custom tone"))
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(jevLocalized(store.language, zh: "取消", en: "Cancel")) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
+                    Button(jevLocalized(store.language, zh: "保存", en: "Save")) {
                         let n = name.trimmingCharacters(in: .whitespaces)
                         let d = desc.trimmingCharacters(in: .whitespaces)
                         guard !n.isEmpty, !d.isEmpty, n != NONE_LABEL else { return }

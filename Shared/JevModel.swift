@@ -16,21 +16,6 @@ enum APIKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-/// 随包分发的内置凭据：一个 key 都没配时用它，应用开箱就能出候选。
-/// 与 macOS 版 `src/builtin.py` 同一套值，换 token 只改这几行。
-///
-/// ⚠️ 这些值随包分发就等于公开：任何人解开 App 或翻仓库都能拿到。
-/// 所以这里放的必须是**专用 token**（模型白名单 + 额度封顶 + 过期时间），而不是主账号 key。
-/// 把 apiKey 留空 = 退回老行为：必须自己配，否则候选区只显示「还没配置生成层」。
-enum JevBuiltin {
-    static let apiKey = "sk-WwZDJLxyZSiLESeLjVTySpCiwjcNoJauuGVkWPNEpI2NyDbQ"
-    /// 自建中转（One API / New API）
-    static let baseURL = "http://101.132.131.220:11111/v1"
-    static let model = "glm-4-flash"
-    /// 关思考：glm-4-flash 忽略未知字段，Qwen3 那类不关会慢到 85 秒
-    static let extraBody = "{\"enable_thinking\": false}"
-}
-
 struct ProviderPreset: Identifiable, Hashable {
     let id: String
     let name: String
@@ -39,12 +24,8 @@ struct ProviderPreset: Identifiable, Hashable {
     let model: String
     let keyHint: String
 
-    /// 与 Windows 版内置预设同一批（DeepSeek 国内直连最快、智谱 glm-4-flash 免费、
-    /// OpenRouter 一个 key 全模型、通义便宜、Ollama 完全本地）。
+    /// DeepSeek 国内直连、智谱 glm-4-flash、OpenRouter、通义与本地 Ollama。
     static let all: [ProviderPreset] = [
-        .init(id: "builtin", name: "内置中转（开箱即用，免填 Key）", kind: .openai,
-              base: JevBuiltin.baseURL, model: JevBuiltin.model,
-              keyHint: "不用填：留空即走内置 token"),
         .init(id: "zhipu", name: "智谱（glm-4-flash 免费）", kind: .openai,
               base: "https://open.bigmodel.cn/api/paas/v4", model: "glm-4-flash", keyHint: "open.bigmodel.cn 的 API Key"),
         .init(id: "deepseek", name: "DeepSeek 官方", kind: .openai,
@@ -93,8 +74,6 @@ struct GenCredentials {
     var key: String
     var model: String
     var extraJSON: String
-    /// true = 这一组来自内置中转，不是用户自己配的
-    var isBuiltin: Bool
 }
 
 /// 话术槽上限。iOS 比 macOS 少一个：手机屏幕高度有限，3 槽 × 2 条 = 最多 6 条候选
@@ -104,13 +83,13 @@ let MAX_SLOTS = 2
 
 /// 全部配置。存 App Group，键盘扩展与主 App 共享同一份。
 struct JevConfig: Codable, Equatable {
-    // 生成层（用户没填 key 时自动回退到 JevBuiltin，见 `generation`）
+    // 生成层（必须配置自己的服务地址、API Key 和模型）
     var genKind: APIKind = .openai
-    var genBase: String = JevBuiltin.baseURL
+    var genBase: String = "https://open.bigmodel.cn/api/paas/v4"
     var genKey: String = ""
-    var genModel: String = JevBuiltin.model
+    var genModel: String = "glm-4-flash"
     /// 额外请求体字段（JSON），端点要靠额外字段关思考模式时填，如 {"enable_thinking":false}
-    var genExtraJSON: String = "{\"enable_thinking\": false}"
+    var genExtraJSON: String = ""
 
     // 判断层（Jev：意图 + 风险 + 排序，核心判断引擎）。
     // 没配 key 时管线自动退化为「盲起草」——只出候选、无意图/风险，运行时兜底而非配置开关。
@@ -126,24 +105,10 @@ struct JevConfig: Codable, Equatable {
 
     var activeSlots: [String] { Array(slots.filter { !$0.isEmpty }.prefix(MAX_SLOTS)) }
 
-    /// 生成层实际会用的凭据：用户填了 key 就用他那一整组，一个都没填才回退到内置中转
-    /// （与 macOS 版 `src/generate.py` 同序：内置永远不会盖掉用户显式配的那一组）。
+    /// 生成层凭据完全来自用户配置，不会回退到项目提供的服务。
     var generation: GenCredentials {
-        if !genKey.isEmpty {
-            return GenCredentials(kind: genKind,
-                                  base: genBase.isEmpty ? JevBuiltin.baseURL : genBase,
-                                  key: genKey,
-                                  model: genModel.isEmpty ? JevBuiltin.model : genModel,
-                                  extraJSON: genExtraJSON,
-                                  isBuiltin: false)
-        }
-        guard !JevBuiltin.apiKey.isEmpty else {
-            return GenCredentials(kind: genKind, base: genBase, key: "", model: genModel,
-                                  extraJSON: genExtraJSON, isBuiltin: false)
-        }
-        return GenCredentials(kind: .openai, base: JevBuiltin.baseURL, key: JevBuiltin.apiKey,
-                              model: JevBuiltin.model, extraJSON: JevBuiltin.extraBody,
-                              isBuiltin: true)
+        GenCredentials(kind: genKind, base: genBase, key: genKey,
+                       model: genModel, extraJSON: genExtraJSON)
     }
 }
 
@@ -158,8 +123,9 @@ struct KeyboardStatus: Codable, Equatable {
 /// 配置与状态的唯一存放点。键值放 App Group UserDefaults：
 /// 键盘扩展只有拿到「允许完全访问」后才能读共享容器，正好与联网条件一致。
 enum JevStore {
-    static let appGroupID = "group.com.jevchat.jarvis.ios"
+    static let appGroupID = "group.com.jevchat.jarvis"
     private static let configKey = "jev.config.v1"
+    private static let removedGenerationBase = "http://101.132.131.220:11111/v1"
     private static let statusKey = "jev.kbstatus.v1"
     private static let canaryKey = "jev.canary.v1"
 
@@ -176,8 +142,17 @@ enum JevStore {
 
     static func loadConfig() -> JevConfig {
         guard let data = defaults.data(forKey: configKey),
-              let cfg = try? JSONDecoder().decode(JevConfig.self, from: data) else {
+              var cfg = try? JSONDecoder().decode(JevConfig.self, from: data) else {
             return JevConfig()
+        }
+        if cfg.genBase == removedGenerationBase {
+            let preset = ProviderPreset.all.first { $0.id == "zhipu" }
+            cfg.genKind = preset?.kind ?? .openai
+            cfg.genBase = preset?.base ?? ""
+            cfg.genKey = ""
+            cfg.genModel = preset?.model ?? ""
+            cfg.genExtraJSON = ""
+            saveConfig(cfg)
         }
         return cfg
     }
