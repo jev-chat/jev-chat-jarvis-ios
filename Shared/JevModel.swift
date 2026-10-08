@@ -187,10 +187,28 @@ enum JevStore {
 
     /// 键盘侧自检日志。键盘扩展连不上 Xcode 看控制台，所以写进 App Group，
     /// 再用 `xcrun devicectl device copy from --domain-type appGroupDataContainer` 拉出来看。
+    /// 同时追加写一份到 D 盘缓存文件（见 `JevPaths.diagLogURL`），Mac 构建/模拟器下可直读，
+    /// 真机无 `/Volumes/D` 时此处静默失败，不影响 App Group 那份。
     static func diag(_ line: String) {
         let stamp = String(format: "%.3f", Date().timeIntervalSince1970)
         let prev = defaults.string(forKey: diagKey) ?? ""
         defaults.set(String((prev + "[\(stamp)] \(line)\n").suffix(6000)), forKey: diagKey)
+        JevStore.appendDiagToFile("[\(stamp)] \(line)")
+    }
+
+    /// 把一行调试日志追加到 D 盘缓存（运行时缓存的一部分）。失败静默。
+    private static func appendDiagToFile(_ line: String) {
+        guard let data = (line + "\n").data(using: .utf8) else { return }
+        let url = JevPaths.diagLogURL
+        JevPaths.ensure(JevPaths.logsDir)
+        if FileManager.default.fileExists(atPath: url.path) {
+            guard let fh = try? FileHandle(forWritingTo: url) else { return }
+            fh.seekToEndOfFile()
+            fh.write(data)
+            fh.closeFile()
+        } else {
+            try? data.write(to: url, options: .atomic)
+        }
     }
 #endif
 }

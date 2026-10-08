@@ -57,7 +57,7 @@ enum JevHTTP {
             for (k, v) in headers { req.setValue(v, forHTTPHeaderField: k) }
             req.httpBody = payload
             do {
-                let (data, resp) = try await ephemeralSession().data(for: req)
+                let (data, resp) = try await activeSession().data(for: req)
                 let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
                 if code == 200, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     return obj
@@ -99,6 +99,33 @@ enum JevHTTP {
         let s = URLSession(configuration: cfg)
         session = s
         return s
+    }
+
+    /// 受控磁盘缓存会话：响应缓存落在 `JevPaths.runtimeCache`（即 D 盘）。
+    /// 仅在环境变量 `JEV_USE_DISK_CACHE=1` 时启用，默认仍走 ephemeral 不写磁盘。
+    private static var diskSession: URLSession?
+    static func diskCacheSession() -> URLSession {
+        if let s = diskSession { return s }
+        JevPaths.ensure(JevPaths.runtimeCache)
+        let cache = URLCache(
+            memoryCapacity: 8 * 1024 * 1024,
+            diskCapacity: 50 * 1024 * 1024,
+            diskPath: JevPaths.runtimeCache.path
+        )
+        let cfg = URLSessionConfiguration.default
+        cfg.urlCache = cache
+        cfg.waitsForConnectivity = true
+        cfg.timeoutIntervalForRequest = 60
+        let s = URLSession(configuration: cfg)
+        diskSession = s
+        return s
+    }
+
+    /// 统一会话入口：env 打开磁盘缓存时走 D 盘缓存会话，否则 ephemeral（默认）。
+    static func activeSession() -> URLSession {
+        ProcessInfo.processInfo.environment["JEV_USE_DISK_CACHE"] == "1"
+            ? diskCacheSession()
+            : ephemeralSession()
     }
 
     /// 容错解析：剥掉 markdown 围栏与前后杂字，取第一个 { 到最后一个 }。

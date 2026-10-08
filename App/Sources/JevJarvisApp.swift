@@ -32,6 +32,13 @@ struct JevJarvisApp: App {
     @StateObject private var store = ConfigStore()
     @Environment(\.scenePhase) private var scenePhase
 
+    /// 启动时打印缓存路径，便于确认派生数据/运行时缓存确实落在 D 盘。
+    init() {
+        #if DEBUG
+        print(JevPaths.dump())
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             TabView {

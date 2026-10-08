@@ -1,6 +1,9 @@
 name: JevJarvis
 options:
   bundleIdPrefix: com.jevchat
+  # 派生数据(DerivedData) 写到 D 盘，避免占用 Mac 系统卷（等效 Windows C 盘）。
+  # 路径即 Windows D 盘在 macOS(Boot Camp 双系统)下的挂载点。
+  derivedDataPath: /Volumes/D/jev-ios-cache/DerivedData
   createIntermediateGroups: true
   deploymentTarget:
     iOS: "16.0"
@@ -11,10 +14,17 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
     TARGETED_DEVICE_FAMILY: "1"
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: 75LZ93U5CF
+    # Team ID 由环境变量 JEV_TEAM_ID 注入（build.sh 默认 75LZ93U5CF 上游占位，需替换成你自己的）。
+    DEVELOPMENT_TEAM: ${ENV:JEV_TEAM_ID}
     CURRENT_PROJECT_VERSION: "2"
     MARKETING_VERSION: "0.1.0"
     GENERATE_INFOPLIST_FILE: false
+    # —— 构建缓存统一落到 D 盘 ——
+    # 可用环境变量覆盖根：构建前 export JEV_CACHE_ROOT=/your/volume/jev-ios-cache
+    SYMROOT: /Volumes/D/jev-ios-cache/Build/Products
+    OBJROOT: /Volumes/D/jev-ios-cache/Build/Intermediates
+    DERIVED_DATA_PATH: /Volumes/D/jev-ios-cache/DerivedData
+    SHARED_PRECOMPS_DIR: /Volumes/D/jev-ios-cache/Build/Precompiled
 
 targets:
   JevJarvis:
@@ -29,7 +39,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: App/Info.plist
-        CODE_SIGN_ENTITLEMENTS: App/JevJarvis.entitlements
+        # entitlements 路径由 build.sh 经 JEV_APP_ENTITLEMENTS 注入（付费=带 App Group，免费=空）。
+        CODE_SIGN_ENTITLEMENTS: ${ENV:JEV_APP_ENTITLEMENTS}
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
       path: App/Info.plist
@@ -44,10 +55,7 @@ targets:
           NSAllowsArbitraryLoads: true
         ITSAppUsesNonExemptEncryption: false
     entitlements:
-      path: App/JevJarvis.entitlements
-      properties:
-        com.apple.security.application-groups:
-          - group.com.jevchat.jarvis
+      path: ${ENV:JEV_APP_ENTITLEMENTS}
     dependencies:
       - target: JevKeyboard
 
@@ -62,7 +70,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.jevchat.jarvis.keyboard
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: Keyboard/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Keyboard/JevKeyboard.entitlements
+        CODE_SIGN_ENTITLEMENTS: ${ENV:JEV_KB_ENTITLEMENTS}
         SKIP_INSTALL: true
     info:
       path: Keyboard/Info.plist
@@ -85,10 +93,7 @@ targets:
           NSExtensionPointIdentifier: com.apple.keyboard-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
     entitlements:
-      path: Keyboard/JevKeyboard.entitlements
-      properties:
-        com.apple.security.application-groups:
-          - group.com.jevchat.jarvis
+      path: ${ENV:JEV_KB_ENTITLEMENTS}
 
   JevJarvisUITests:
     type: bundle.ui-testing
